@@ -79,17 +79,17 @@ src/app/
 │   ├── directives/
 │   └── utils/
 │
-└── features/          # one folder per domain
-    ├── courses/
+└── modules/           # one folder per domain (a.k.a. features)
+    ├── catalog/
     ├── scholarships/
     ├── users/
     └── profile/
 ```
 
-Each feature follows the same internal layout:
+Each module follows the same internal layout:
 
 ```
-feature/
+modules/catalog/
 ├── ui/                # presentation only
 │   ├── pages/         # route-bound pages (course-list.ts, course-detail.ts)
 │   ├── components/    # reusable pieces (course-card.ts, course-form.ts)
@@ -97,13 +97,14 @@ feature/
 ├── services/          # frontend logic that doesn't belong in components
 │   ├── course.service.ts         # coordination / data flow
 │   ├── course-filter.service.ts  # presentation logic
-│   └── course-state.service.ts   # feature state
+│   └── course-state.service.ts   # module state
 ├── api/               # backend communication
 │   ├── courses.api.ts            # HttpClient calls only
 │   ├── course.dto.ts             # API wire format
-│   └── course.mapper.ts          # DTO <-> model mapping
+│   ├── course.mapper.ts          # DTO <-> model mapping
+│   └── mocks/                    # mock responses mirroring the API contract
 ├── models/            # domain models (course.model.ts, course-status.ts)
-└── feature.routes.ts  # lazy-loaded feature routes
+└── catalog.routes.ts  # lazy-loaded module routes
 ```
 
 ### Rules
@@ -125,7 +126,7 @@ feature/
   ```
   Don't obsess over strict direction; keep it intuitive.
 - **DTOs live in `api/`, models live in `models/`.** Never mix them (`models/course.dto.ts` is wrong).
-- **Feature services stay in their feature.** `shared/services/course.service.ts` is a smell; move it into `courses/services/`.
+- **Feature services stay in their module.** `shared/services/course.service.ts` is a smell; move it into `modules/catalog/services/`.
 - **`shared/` only holds genuinely generic code** (button, modal, pipes, directives, utils). Domain-specific code belongs in the feature.
 - **`core/` holds only cross-cutting Angular infrastructure** (auth, http interceptors, guards, global config).
 - Use `models/` for domain types, `api/*.dto.ts` for wire format, and `api/*.mapper.ts` to convert between them.
