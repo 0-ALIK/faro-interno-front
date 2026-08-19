@@ -1,5 +1,5 @@
 import { definePreset } from '@primeuix/themes';
-import type { BaseTokenSections } from '@primeuix/themes/types/base';
+import type { AuraBaseTokenSections } from '@primeuix/themes/aura/base';
 import aura from '@primeuix/themes/aura';
 
 const shadowXs = '0 1px 2px rgba(14, 34, 93, 0.06)';
@@ -161,7 +161,7 @@ const palettes = {
   purple,
   lime,
   terracotta
-} as unknown as BaseTokenSections.Primitive;
+} as unknown as AuraBaseTokenSections.Primitive;
 
 export const faroPreset = definePreset(aura, {
   primitive: palettes,
