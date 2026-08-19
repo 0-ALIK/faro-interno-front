@@ -23,9 +23,7 @@ import { UserService } from '../auth/user.service';
               (onClick)="toggleSidebar.emit()"
             />
             <div class="hidden items-center gap-3 sm:flex">
-              <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white">
-                <span class="pi pi-building text-base" aria-hidden="true"></span>
-              </span>
+              <img src="images/logo-blue.png" alt="Faro Interno" class="h-9 w-9 object-contain" />
               <div class="leading-tight">
                 <p class="font-brand text-base text-primary-900">Municipio de Panamá</p>
                 <p class="text-xs text-muted-color">Sistema interno · Faro</p>

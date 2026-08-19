@@ -11,9 +11,7 @@ import { NAV_SECTIONS } from './navigation';
       <div class="h-1 shrink-0 bg-gradient-to-r from-primary-400 via-primary-500 to-primary-700"></div>
 
       <div class="flex h-20 shrink-0 items-center gap-3 px-5">
-        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10">
-          <span class="pi pi-building text-xl text-white" aria-hidden="true"></span>
-        </div>
+        <img src="images/logo-white.png" alt="Faro Interno" class="h-11 w-11 shrink-0 object-contain" />
         <div class="min-w-0">
           <p class="truncate font-brand text-base leading-tight text-white">Municipio de Panamá</p>
           <p class="text-xs font-medium text-primary-200">Faro Interno</p>
