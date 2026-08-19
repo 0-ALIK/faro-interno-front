@@ -7,10 +7,6 @@ export const catalogRoutes: Routes = [
     loadComponent: () => import('./ui/pages/course-list').then((m) => m.CourseList)
   },
   {
-    path: 'courses/new',
-    loadComponent: () => import('./ui/pages/course-form').then((m) => m.CourseForm)
-  },
-  {
     path: 'courses/:id',
     loadComponent: () => import('./ui/pages/course-detail').then((m) => m.CourseDetail)
   },

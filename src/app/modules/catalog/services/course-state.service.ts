@@ -6,27 +6,26 @@ import { CatalogApi } from '../api/catalog.api';
 import { mapCourse, mapCourseList } from '../api/catalog.mapper';
 import type { CourseStatus, NamedRef } from '../models/catalog.model';
 import type { Course, CourseSummary } from '../models/course.model';
+import { FileApi } from '../../../core/http/file.api';
 
 @Injectable({ providedIn: 'root' })
 export class CourseStateService {
   private readonly api = inject(CatalogApi);
+  private readonly fileApi = inject(FileApi);
   private readonly router = inject(Router);
 
   readonly courses = signal<CourseSummary[]>([]);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly page = signal(1);
+  readonly total = signal(0);
   readonly search = signal('');
   readonly statusFilter = signal<CourseStatus | null>(null);
+  readonly categoryFilter = signal<string | null>(null);
+  readonly providerFilter = signal<string | null>(null);
+  readonly coverUrls = signal<Map<string, string>>(new Map());
 
-  readonly filteredCourses = computed(() => {
-    const query = this.search().trim().toLowerCase();
-    const status = this.statusFilter();
-    return this.courses().filter((course) => {
-      const matchesQuery = !query || course.title.toLowerCase().includes(query);
-      const matchesStatus = !status || course.status === status;
-      return matchesQuery && matchesStatus;
-    });
-  });
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / 10)));
 
   readonly currentCourse = signal<Course | null>(null);
   readonly detailLoading = signal(false);
@@ -34,11 +33,23 @@ export class CourseStateService {
   readonly saving = signal(false);
 
   async load(): Promise<void> {
+    if (this.loading()) return;
+
     this.loading.set(true);
     this.error.set(null);
     try {
-      const page = await firstValueFrom(this.api.listCourses({ limit: 100 }));
-      this.courses.set(mapCourseList(page).data);
+      const result = await firstValueFrom(this.api.listCourses({
+        page: this.page(),
+        limit: 10,
+        search: this.search() || undefined,
+        statuses: this.statusFilter() ? [this.statusFilter()!] : undefined,
+        categoryIds: this.categoryFilter() ? [this.categoryFilter()!] : undefined,
+        providerIds: this.providerFilter() ? [this.providerFilter()!] : undefined
+      }));
+      const courses = mapCourseList(result).data;
+      this.courses.set(courses);
+      this.total.set(result.pagination.total);
+      await this.resolveCoverUrls(courses.map((c) => c.cover?.key).filter((k): k is string => !!k));
     } catch {
       this.error.set('No se pudo cargar el catálogo de cursos.');
     } finally {
@@ -46,12 +57,30 @@ export class CourseStateService {
     }
   }
 
+  setPage(newPage: number): void {
+    this.page.set(newPage);
+    void this.load();
+  }
+
+  resetFiltersAndReload(): void {
+    this.page.set(1);
+    this.search.set('');
+    this.statusFilter.set(null);
+    this.categoryFilter.set(null);
+    this.providerFilter.set(null);
+    void this.load();
+  }
+
   async loadCourse(id: string): Promise<void> {
     this.detailLoading.set(true);
     this.detailError.set(null);
     try {
       const dto = await firstValueFrom(this.api.getCourse(id));
-      this.currentCourse.set(mapCourse(dto));
+      const course = mapCourse(dto);
+      this.currentCourse.set(course);
+      if (course.cover?.key) {
+        await this.resolveCoverUrls([course.cover.key]);
+      }
     } catch {
       this.detailError.set('No se pudo cargar el curso.');
     } finally {
@@ -156,16 +185,33 @@ export class CourseStateService {
     }
   }
 
+  private async resolveCoverUrls(keys: string[]): Promise<void> {
+    const uniqueKeys = [...new Set(keys)].filter(
+      (k) => !this.coverUrls().has(k),
+    );
+    if (uniqueKeys.length === 0) return;
+
+    const signed = await firstValueFrom(this.fileApi.batchSign(uniqueKeys));
+    this.coverUrls.update((prev) => {
+      const next = new Map(prev);
+      for (const file of signed) {
+        next.set(file.key, file.url);
+      }
+      return next;
+    });
+  }
+
+  getCoverUrl(key: string | null | undefined): string | null {
+    if (!key) return null;
+    return this.coverUrls().get(key) ?? null;
+  }
+
   goToDetail(id: string): void {
     this.router.navigate(['/catalog/courses', id]);
   }
 
   goToEdit(id: string): void {
     this.router.navigate(['/catalog/courses', id, 'edit']);
-  }
-
-  goToCreate(): void {
-    this.router.navigate(['/catalog/courses', 'new']);
   }
 
   goToCatalog(): void {

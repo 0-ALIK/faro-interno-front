@@ -174,6 +174,8 @@ export class CourseForm implements OnInit {
   protected readonly isEdit = signal(false);
   protected readonly coverFile = signal<File | null>(null);
   protected readonly coverPreview = signal<string | null>(null);
+  private originalCompetencyIds: string[] = [];
+  private originalTagIds: string[] = [];
 
   protected readonly form: FormGroup = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(200)]],
@@ -203,6 +205,8 @@ export class CourseForm implements OnInit {
       await this.courseState.loadCourse(id);
       const course = this.courseState.currentCourse();
       if (course) {
+        this.originalCompetencyIds = course.competencies.map((c) => c.id);
+        this.originalTagIds = course.tags.map((t) => t.id);
         this.form.patchValue({
           title: course.title,
           description: course.description ?? '',
@@ -251,35 +255,35 @@ export class CourseForm implements OnInit {
         description: val.description || null,
         modality: val.modality,
         level: val.level,
-        origin: val.origin,
-        enrollmentMode: val.enrollmentMode,
-        durationHours: val.durationHours
+        enrollmentMode: val.enrollmentMode
       });
-      if (val.categoryId !== undefined) {
-        await this.courseState.assignCategory(id, val.categoryId);
-      }
-      if (val.providerId !== undefined) {
-        await this.courseState.assignProvider(id, val.providerId);
-      }
-      if (val.competencyIds) {
-        await this.courseState.addCompetencies(id, val.competencyIds);
-      }
-      if (val.tagIds) {
-        await this.courseState.addTags(id, val.tagIds);
-      }
-      this.courseState.goToDetail(id);
-    } else {
-      const formData = new FormData();
-      formData.append('title', val.title);
-      formData.append('modality', val.modality);
-      formData.append('level', val.level);
-      formData.append('origin', val.origin);
-      if (val.description) formData.append('description', val.description);
-      if (val.enrollmentMode) formData.append('enrollmentMode', val.enrollmentMode);
-      if (this.coverFile()) formData.append('cover', this.coverFile()!);
 
-      const newId = await this.courseState.createCourse(formData);
-      this.courseState.goToDetail(newId);
+      if (val.durationHours) {
+        await this.courseState.updateDuration(id, val.durationHours);
+      }
+
+      if (val.categoryId) await this.courseState.assignCategory(id, val.categoryId);
+      if (val.providerId) await this.courseState.assignProvider(id, val.providerId);
+
+      const currentCompetencyIds: string[] = val.competencyIds ?? [];
+      const competenciesToAdd = currentCompetencyIds.filter((cid: string) => !this.originalCompetencyIds.includes(cid));
+      const competenciesToRemove = this.originalCompetencyIds.filter((cid: string) => !currentCompetencyIds.includes(cid));
+      if (competenciesToAdd.length > 0) await this.courseState.addCompetencies(id, competenciesToAdd);
+      if (competenciesToRemove.length > 0) await this.courseState.removeCompetencies(id, competenciesToRemove);
+
+      const currentTagIds: string[] = val.tagIds ?? [];
+      const tagsToAdd = currentTagIds.filter((tid: string) => !this.originalTagIds.includes(tid));
+      const tagsToRemove = this.originalTagIds.filter((tid: string) => !currentTagIds.includes(tid));
+      if (tagsToAdd.length > 0) await this.courseState.addTags(id, tagsToAdd);
+      if (tagsToRemove.length > 0) await this.courseState.removeTags(id, tagsToRemove);
+
+      if (this.coverFile()) {
+        const coverFormData = new FormData();
+        coverFormData.append('cover', this.coverFile()!);
+        await this.courseState.updateCover(id, coverFormData);
+      }
+
+      this.courseState.goToDetail(id);
     }
   }
 }

@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { DatePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
@@ -25,7 +24,6 @@ import type { CourseModality, CourseLevel, CourseOrigin } from '../../models/cat
 @Component({
   selector: 'app-course-detail',
   imports: [
-    DatePipe,
     ButtonModule,
     CardModule,
     DividerModule,
@@ -52,7 +50,7 @@ import type { CourseModality, CourseLevel, CourseOrigin } from '../../models/cat
           @if (course.cover) {
             <div
               class="pointer-events-none absolute inset-0 bg-cover bg-center opacity-20"
-              [style.backgroundImage]="'url(/api/files/' + course.cover.key + ')'"
+              [style.backgroundImage]="'url(' + courseState.getCoverUrl(course.cover.key) + ')'"
             ></div>
           }
           <div class="relative flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -90,7 +88,7 @@ import type { CourseModality, CourseLevel, CourseOrigin } from '../../models/cat
                 @if (course.publishedAt) {
                   <span class="inline-flex items-center gap-1.5">
                     <span class="pi pi-calendar text-xs" aria-hidden="true"></span>
-                    Publicado {{ course.publishedAt | date: 'dd/MM/yyyy' }}
+                    Publicado {{ course.publishedAt }}
                   </span>
                 }
               </div>
@@ -163,12 +161,12 @@ import type { CourseModality, CourseLevel, CourseOrigin } from '../../models/cat
                   <p-divider styleClass="!my-1" />
                   <div class="flex items-center justify-between">
                     <span class="text-caption text-muted-color">Creado</span>
-                    <span class="text-sm text-surface-600">{{ course.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                    <span class="text-sm text-surface-600">{{ course.createdAt }}</span>
                   </div>
                   <p-divider styleClass="!my-1" />
                   <div class="flex items-center justify-between">
                     <span class="text-caption text-muted-color">Actualizado</span>
-                    <span class="text-sm text-surface-600">{{ course.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                    <span class="text-sm text-surface-600">{{ course.updatedAt }}</span>
                   </div>
                 </div>
               </ng-template>
