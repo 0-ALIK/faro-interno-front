@@ -20,7 +20,7 @@ export interface CourseSummary {
   enrollmentMode: EnrollmentMode;
   durationHours: number | null;
   cover: FileRef | null;
-  publishedAt: Date | null;
+  publishedAt: string | null;
 }
 
 export interface Course extends CourseSummary {
@@ -31,6 +31,6 @@ export interface Course extends CourseSummary {
   tags: NamedRef[];
   createdBy: string | null;
   stateHistory: StateHistoryEntry[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }

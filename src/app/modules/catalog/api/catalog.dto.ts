@@ -24,11 +24,11 @@ export interface CategoryDetailDto extends CategoryDto {
 }
 
 export type ProviderTypeDto =
-  | 'EDUCATIONAL_INSTITUTION'
-  | 'PRIVATE_COMPANY'
-  | 'NGO'
-  | 'GOVERNMENT'
-  | 'DIGITAL_PLATFORM';
+  | 'institucion educativa'
+  | 'empresa privada'
+  | 'ong'
+  | 'gobierno'
+  | 'plataforma digital';
 
 export interface ProviderDto {
   id: string;
@@ -61,10 +61,10 @@ export interface TagDetailDto extends TagDto {
   updatedAt: string;
 }
 
-export type CourseModalityDto = 'VIRTUAL' | 'IN_PERSON' | 'HYBRID';
-export type CourseLevelDto = 'BASIC' | 'INTERMEDIATE' | 'ADVANCED';
-export type CourseOriginDto = 'MUNICIPAL' | 'EXTERNAL';
-export type CourseStatusDto = 'DRAFT' | 'UNDER_REVIEW' | 'PUBLISHED' | 'SUSPENDED' | 'ARCHIVED';
+export type CourseModalityDto = 'virtual' | 'presencial' | 'hibrido';
+export type CourseLevelDto = 'basico' | 'intermedio' | 'avanzado';
+export type CourseOriginDto = 'municipal' | 'externo';
+export type CourseStatusDto = 'borrador' | 'en revision' | 'publicado' | 'suspendido' | 'archivado';
 export type EnrollmentModeDto = 'OPEN' | 'SCHOLARSHIP_ONLY';
 
 export interface CourseListItemDto {
@@ -109,5 +109,5 @@ export interface CatalogQueryParams {
   providerIds?: string[];
   competencyIds?: string[];
   tagIds?: string[];
-  statuses?: CourseStatusDto[];
+  statuses?: string[];
 }
