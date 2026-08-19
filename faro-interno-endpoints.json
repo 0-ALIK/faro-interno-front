@@ -1,0 +1,2426 @@
+{
+  "api": {
+    "title": "El Faro Interno API",
+    "baseUrl": "/api/v1",
+    "contexts": [
+      {
+        "context": "catalog",
+        "description": "Catalog of courses and their supporting catalogs (categories, providers, competencies, tags).",
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/catalog/categories",
+            "description": "Create a category",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "length 1-100" }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "GET",
+            "path": "/catalog/categories",
+            "description": "Get all categories (paginated)",
+            "inputs": [
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "search", "type": "string", "required": false },
+              { "in": "query", "name": "ids", "type": "string[] (uuid)", "required": false }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [{ "id": "uuid", "name": "string" }],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/catalog/categories/{id}",
+            "description": "Get a category by id",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "id": "uuid",
+                "name": "string",
+                "createdAt": "string (date)",
+                "updatedAt": "string (date)"
+              }
+            }
+          },
+          {
+            "method": "PATCH",
+            "path": "/catalog/categories/{id}",
+            "description": "Rename a category",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "length 1-100" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/catalog/providers",
+            "description": "Create a provider",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "length 1-100" },
+                  { "name": "type", "type": "enum", "required": true, "values": ["EDUCATIONAL_INSTITUTION", "PRIVATE_COMPANY", "NGO", "GOVERNMENT", "DIGITAL_PLATFORM"] }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "GET",
+            "path": "/catalog/providers",
+            "description": "Get all providers (paginated)",
+            "inputs": [
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "search", "type": "string", "required": false },
+              { "in": "query", "name": "ids", "type": "string[] (uuid)", "required": false }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [{ "id": "uuid", "name": "string", "type": "enum" }],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/catalog/providers/{id}",
+            "description": "Get a provider by id",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "id": "uuid",
+                "name": "string",
+                "type": "enum",
+                "createdAt": "string (date)",
+                "updatedAt": "string (date)"
+              }
+            }
+          },
+          {
+            "method": "PATCH",
+            "path": "/catalog/providers/{id}",
+            "description": "Rename a provider",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "length 1-100" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/catalog/providers/{id}/type",
+            "description": "Change the provider type",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "type", "type": "enum", "required": true, "values": ["EDUCATIONAL_INSTITUTION", "PRIVATE_COMPANY", "NGO", "GOVERNMENT", "DIGITAL_PLATFORM"] }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/catalog/competencies",
+            "description": "Create a competency",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "length 1-100" }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "GET",
+            "path": "/catalog/competencies",
+            "description": "Get all competencies (paginated)",
+            "inputs": [
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "search", "type": "string", "required": false },
+              { "in": "query", "name": "ids", "type": "string[] (uuid)", "required": false }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [{ "id": "uuid", "name": "string" }],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/catalog/competencies/{id}",
+            "description": "Get a competency by id",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "id": "uuid",
+                "name": "string",
+                "createdAt": "string (date)",
+                "updatedAt": "string (date)"
+              }
+            }
+          },
+          {
+            "method": "PATCH",
+            "path": "/catalog/competencies/{id}",
+            "description": "Rename a competency",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "length 1-100" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/catalog/tags",
+            "description": "Create a tag",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "length 1-50" }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "GET",
+            "path": "/catalog/tags",
+            "description": "Get all tags (paginated)",
+            "inputs": [
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "search", "type": "string", "required": false },
+              { "in": "query", "name": "ids", "type": "string[] (uuid)", "required": false }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [{ "id": "uuid", "name": "string" }],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/catalog/tags/{id}",
+            "description": "Get a tag by id",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "id": "uuid",
+                "name": "string",
+                "createdAt": "string (date)",
+                "updatedAt": "string (date)"
+              }
+            }
+          },
+          {
+            "method": "PATCH",
+            "path": "/catalog/tags/{id}",
+            "description": "Rename a tag",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "length 1-50" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/catalog/courses",
+            "description": "Create a course (with optional cover image)",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "multipart/form-data",
+                "fields": [
+                  { "name": "title", "type": "string", "required": true, "constraints": "length 1-200" },
+                  { "name": "modality", "type": "enum", "required": true, "values": ["VIRTUAL", "IN_PERSON", "HYBRID"] },
+                  { "name": "level", "type": "enum", "required": true, "values": ["BASIC", "INTERMEDIATE", "ADVANCED"] },
+                  { "name": "origin", "type": "enum", "required": true, "values": ["MUNICIPAL", "EXTERNAL"] },
+                  { "name": "enrollmentMode", "type": "enum", "required": false, "default": "OPEN", "values": ["OPEN", "SCHOLARSHIP_ONLY"] },
+                  { "name": "description", "type": "string", "required": false, "constraints": "max 2000" },
+                  { "name": "cover", "type": "file (image)", "required": false }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "GET",
+            "path": "/catalog/courses",
+            "description": "Get all courses (paginated, with filters)",
+            "inputs": [
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "search", "type": "string", "required": false },
+              { "in": "query", "name": "categoryIds", "type": "string[] (uuid)", "required": false },
+              { "in": "query", "name": "providerIds", "type": "string[] (uuid)", "required": false },
+              { "in": "query", "name": "competencyIds", "type": "string[] (uuid)", "required": false },
+              { "in": "query", "name": "tagIds", "type": "string[] (uuid)", "required": false },
+              { "in": "query", "name": "statuses", "type": "enum[]", "required": false, "values": ["DRAFT", "UNDER_REVIEW", "PUBLISHED", "SUSPENDED", "ARCHIVED"] }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [
+                  {
+                    "id": "uuid",
+                    "title": "string",
+                    "modality": "enum | null",
+                    "level": "enum | null",
+                    "origin": "enum | null",
+                    "status": "enum",
+                    "enrollmentMode": "enum",
+                    "durationHours": "number | null",
+                    "cover": "{ key: string, name: string, type: enum } | null",
+                    "publishedAt": "string (date) | null"
+                  }
+                ],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/catalog/courses/{id}",
+            "description": "Get a course by id with its relations",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "id": "uuid",
+                "title": "string",
+                "description": "string | null",
+                "modality": "enum | null",
+                "level": "enum | null",
+                "origin": "enum | null",
+                "status": "enum",
+                "enrollmentMode": "enum",
+                "durationHours": "number | null",
+                "cover": "{ key: string, name: string, type: enum } | null",
+                "publishedAt": "string (date) | null",
+                "category": "{ id: uuid, name: string } | null",
+                "provider": "{ id: uuid, name: string, type: enum } | null",
+                "competencies": [{ "id": "uuid", "name": "string" }],
+                "tags": [{ "id": "uuid", "name": "string" }],
+                "createdBy": "uuid | null",
+                "stateHistory": [
+                  {
+                    "id": "uuid",
+                    "official": { "id": "uuid", "name": "string", "lastName": "string", "photo": "string | null" },
+                    "from": "enum | null",
+                    "to": "enum",
+                    "date": "string (date)",
+                    "time": "string (hh:mm AM/PM)"
+                  }
+                ],
+                "createdAt": "string (date)",
+                "updatedAt": "string (date)"
+              }
+            }
+          },
+          {
+            "method": "PATCH",
+            "path": "/catalog/courses/{id}",
+            "description": "Update course fields (editable while not PUBLISHED/ARCHIVED)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "title", "type": "string", "required": false, "constraints": "length 1-200" },
+                  { "name": "description", "type": "string | null", "required": false, "constraints": "max 2000" },
+                  { "name": "modality", "type": "enum", "required": false, "values": ["VIRTUAL", "IN_PERSON", "HYBRID"] },
+                  { "name": "level", "type": "enum", "required": false, "values": ["BASIC", "INTERMEDIATE", "ADVANCED"] },
+                  { "name": "durationHours", "type": "number", "required": false, "constraints": "min 1" },
+                  { "name": "enrollmentMode", "type": "enum", "required": false, "values": ["OPEN", "SCHOLARSHIP_ONLY"] }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/catalog/courses/{id}/cover",
+            "description": "Change or remove the course cover",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "multipart/form-data",
+                "fields": [
+                  { "name": "cover", "type": "file (image)", "required": false, "description": "Omit to remove the cover" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/catalog/courses/{id}/submit-review",
+            "description": "Submit a course for review (DRAFT -> UNDER_REVIEW)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/catalog/courses/{id}/return-draft",
+            "description": "Return a course to draft (UNDER_REVIEW -> DRAFT)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/catalog/courses/{id}/publish",
+            "description": "Publish a course (UNDER_REVIEW -> PUBLISHED)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/catalog/courses/{id}/suspend",
+            "description": "Suspend a course (PUBLISHED -> SUSPENDED)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/catalog/courses/{id}/archive",
+            "description": "Archive a course (SUSPENDED -> ARCHIVED)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/catalog/courses/{id}/resubmit-review",
+            "description": "Resubmit a suspended course for review (SUSPENDED -> UNDER_REVIEW)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/catalog/courses/{id}/category",
+            "description": "Assign a category to a course",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "categoryId", "type": "uuid", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/catalog/courses/{id}/provider",
+            "description": "Assign a provider to a course",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "providerId", "type": "uuid", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/catalog/courses/{id}/duration",
+            "description": "Update the course duration in hours",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "hours", "type": "number", "required": true, "constraints": "min 1" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/catalog/courses/{id}/competencies",
+            "description": "Add competencies to a course",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "competencyIds", "type": "uuid[]", "required": true, "constraints": "min 1 item" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/catalog/courses/{id}/competencies",
+            "description": "Remove competencies from a course",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "competencyIds", "type": "uuid[]", "required": true, "constraints": "min 1 item" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/catalog/courses/{id}/tags",
+            "description": "Add tags to a course",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "tagIds", "type": "uuid[]", "required": true, "constraints": "min 1 item" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/catalog/courses/{id}/tags",
+            "description": "Remove tags from a course",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "tagIds", "type": "uuid[]", "required": true, "constraints": "min 1 item" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          }
+        ]
+      },
+      {
+        "context": "formation",
+        "description": "Municipal courses: structure of modules, lessons, evaluations and content built by the municipality.",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/formation/courses",
+            "description": "Get all municipal courses (paginated)",
+            "inputs": [
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "search", "type": "string", "required": false },
+              { "in": "query", "name": "courseId", "type": "uuid", "required": false, "description": "Catalog course id the municipal course references" }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [
+                  {
+                    "id": "uuid",
+                    "courseId": "uuid",
+                    "courseTitle": "string",
+                    "courseCover": "{ key: string, name: string, type: enum } | null",
+                    "courseStatus": "enum",
+                    "moduleCount": "number",
+                    "lessonCount": "number"
+                  }
+                ],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/formation/courses/{id}",
+            "description": "Get a municipal course structure with its modules and lessons",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "id": "uuid",
+                "courseId": "uuid",
+                "courseTitle": "string",
+                "courseCover": "{ key: string, name: string, type: enum } | null",
+                "courseStatus": "enum",
+                "modules": [
+                  {
+                    "id": "uuid",
+                    "title": "string",
+                    "description": "string | null",
+                    "position": "number",
+                    "hasEvaluation": "boolean",
+                    "createdBy": "uuid",
+                    "lessons": [{ "id": "uuid", "title": "string", "type": "enum", "position": "number", "createdBy": "uuid" }]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/formation/courses/{id}/modules",
+            "description": "Add a module to a municipal course",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "title", "type": "string", "required": true, "constraints": "length 1-200" },
+                  { "name": "description", "type": "string | null", "required": false, "constraints": "max 2000" },
+                  { "name": "order", "type": "number", "required": true, "constraints": "min 1" }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/formation/courses/{id}/modules/{moduleId}",
+            "description": "Remove a module from a municipal course",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              { "in": "path", "name": "moduleId", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/formation/courses/{id}/modules/{moduleId}/order",
+            "description": "Reorder a module within a municipal course",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              { "in": "path", "name": "moduleId", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "newOrder", "type": "number", "required": true, "constraints": "min 1" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/formation/courses/{id}/validate",
+            "description": "Validate the municipal course structure",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/formation/modules/{id}",
+            "description": "Update module fields",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "title", "type": "string", "required": true, "constraints": "length 1-200" },
+                  { "name": "description", "type": "string | null", "required": false, "constraints": "max 2000" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "GET",
+            "path": "/formation/modules/{id}/evaluation",
+            "description": "Get the module evaluation with its questions and answers",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "id": "uuid",
+                "moduleId": "uuid",
+                "title": "string",
+                "description": "string | null",
+                "minimumScore": "number (0-100)",
+                "createdBy": "uuid",
+                "questions": [
+                  {
+                    "id": "uuid",
+                    "statement": "string",
+                    "type": "enum",
+                    "answers": [{ "id": "uuid", "description": "string", "correct": "boolean" }]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/formation/modules/{id}/evaluation",
+            "description": "Create the module evaluation",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "title", "type": "string", "required": true, "constraints": "length 1-200" },
+                  { "name": "description", "type": "string | null", "required": false, "constraints": "max 2000" },
+                  { "name": "minimumScore", "type": "number", "required": true, "constraints": "0-100" }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/formation/modules/{id}/evaluation",
+            "description": "Update the module evaluation",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "title", "type": "string", "required": true, "constraints": "length 1-200" },
+                  { "name": "description", "type": "string | null", "required": false, "constraints": "max 2000" },
+                  { "name": "minimumScore", "type": "number", "required": true, "constraints": "0-100" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/formation/modules/{id}/evaluation/questions",
+            "description": "Add a question to the module evaluation",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "statement", "type": "string", "required": true, "constraints": "length 1-500" },
+                  { "name": "type", "type": "enum", "required": true, "values": ["MULTIPLE_CHOICE", "TRUE_FALSE"] }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/formation/modules/{id}/evaluation/questions/{questionId}",
+            "description": "Remove a question from the module evaluation",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              { "in": "path", "name": "questionId", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/formation/modules/{id}/evaluation/questions/{questionId}/statement",
+            "description": "Change a question statement",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              { "in": "path", "name": "questionId", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "statement", "type": "string", "required": true, "constraints": "length 1-500" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/formation/modules/{id}/evaluation/questions/{questionId}/type",
+            "description": "Change a question type",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              { "in": "path", "name": "questionId", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "type", "type": "enum", "required": true, "values": ["MULTIPLE_CHOICE", "TRUE_FALSE"] }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/formation/modules/{id}/evaluation/questions/{questionId}/answers",
+            "description": "Add an answer to a question (multiple choice only)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              { "in": "path", "name": "questionId", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "description", "type": "string", "required": true, "constraints": "length 1-255" },
+                  { "name": "correct", "type": "boolean", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/formation/modules/{id}/evaluation/questions/{questionId}/answers/{answerId}",
+            "description": "Remove an answer from a question",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              { "in": "path", "name": "questionId", "type": "uuid", "required": true },
+              { "in": "path", "name": "answerId", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/formation/modules/{id}/lessons",
+            "description": "Add a lesson to the module",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "title", "type": "string", "required": true, "constraints": "length 1-200" },
+                  { "name": "description", "type": "string | null", "required": false, "constraints": "max 2000" },
+                  { "name": "type", "type": "enum", "required": true, "values": ["LESSON", "ACTIVITY"] },
+                  { "name": "order", "type": "number", "required": true, "constraints": "min 1" }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/formation/modules/{id}/lessons/{lessonId}",
+            "description": "Remove a lesson from the module",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              { "in": "path", "name": "lessonId", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/formation/modules/{id}/lessons/{lessonId}/order",
+            "description": "Reorder a lesson within the module",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              { "in": "path", "name": "lessonId", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "newOrder", "type": "number", "required": true, "constraints": "min 1" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "GET",
+            "path": "/formation/lessons/{id}",
+            "description": "Get a lesson with its main content and resources",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "id": "uuid",
+                "moduleId": "uuid",
+                "title": "string",
+                "description": "string | null",
+                "type": "enum",
+                "order": "number",
+                "mainContent": "{ type: enum, article: { id, content } | null, video: { key, name, type } | null, documentPdf: { key, name, type } | null } | null",
+                "resources": [{ "id": "uuid", "name": "string", "fileName": "string", "fileKey": "string", "fileType": "enum" }]
+              }
+            }
+          },
+          {
+            "method": "PATCH",
+            "path": "/formation/lessons/{id}",
+            "description": "Update lesson fields",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "title", "type": "string", "required": true, "constraints": "length 1-200" },
+                  { "name": "description", "type": "string | null", "required": false, "constraints": "max 2000" },
+                  { "name": "type", "type": "enum", "required": true, "values": ["LESSON", "ACTIVITY"] }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "PUT",
+            "path": "/formation/lessons/{id}/main-content",
+            "description": "Assign the lesson main content (article, video or pdf)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "multipart/form-data",
+                "fields": [
+                  { "name": "type", "type": "enum", "required": true, "values": ["ARTICLE", "VIDEO", "PDF"] },
+                  { "name": "articleContent", "type": "string", "required": false, "constraints": "required when type is ARTICLE, max 50000" },
+                  { "name": "video", "type": "file (video)", "required": false, "constraints": "required when type is VIDEO" },
+                  { "name": "documentPdf", "type": "file (pdf)", "required": false, "constraints": "required when type is PDF" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/formation/lessons/{id}/main-content/article/{articleId}",
+            "description": "Change the lesson article content",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              { "in": "path", "name": "articleId", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "content", "type": "string", "required": true, "constraints": "length 1-50000" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/formation/lessons/{id}/resources",
+            "description": "Add a resource file to the lesson",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "multipart/form-data",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "length 1-100" },
+                  { "name": "file", "type": "file", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/formation/lessons/{id}/resources/{resourceId}",
+            "description": "Remove a resource from the lesson",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              { "in": "path", "name": "resourceId", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          }
+        ]
+      },
+      {
+        "context": "scholarships",
+        "description": "Scholarship calls and student applications for external course scholarships.",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/scholarships/calls",
+            "description": "Get all scholarship calls (paginated)",
+            "inputs": [
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "search", "type": "string", "required": false },
+              { "in": "query", "name": "status", "type": "enum", "required": false, "values": ["DRAFT", "PUBLISHED", "CLOSED", "FINISHED", "CANCELLED"] }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [
+                  {
+                    "id": "uuid",
+                    "name": "string",
+                    "description": "string | null",
+                    "startDate": "string (date)",
+                    "endDate": "string (date)",
+                    "availableSlots": "number",
+                    "status": "enum",
+                    "courseCount": "number",
+                    "applicationCount": "number"
+                  }
+                ],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/scholarships/calls/{id}",
+            "description": "Get a scholarship call by id",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "id": "uuid",
+                "name": "string",
+                "description": "string | null",
+                "startDate": "string (date)",
+                "endDate": "string (date)",
+                "availableSlots": "number",
+                "status": "enum",
+                "requirements": [{ "id": "uuid", "description": "string" }],
+                "courses": [{ "id": "uuid", "courseId": "uuid", "courseTitle": "string" }],
+                "stateHistory": [
+                  {
+                    "id": "uuid",
+                    "official": { "id": "uuid", "name": "string", "lastName": "string", "photo": "string | null" },
+                    "from": "enum | null",
+                    "to": "enum",
+                    "date": "string (date)",
+                    "time": "string (hh:mm AM/PM)"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/scholarships/calls",
+            "description": "Create a scholarship call (draft)",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "length 1-200" },
+                  { "name": "startDate", "type": "string (date)", "required": true },
+                  { "name": "endDate", "type": "string (date)", "required": true },
+                  { "name": "availableSlots", "type": "number", "required": true, "constraints": "min 1" }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/scholarships/calls/{id}",
+            "description": "Update a scholarship call (draft only)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": false, "constraints": "length 1-200" },
+                  { "name": "description", "type": "string | null", "required": false, "constraints": "max 2000" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/scholarships/calls/{id}/publish",
+            "description": "Publish a scholarship call (DRAFT -> PUBLISHED)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/scholarships/calls/{id}/close",
+            "description": "Close a scholarship call (PUBLISHED -> CLOSED)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/scholarships/calls/{id}/finish",
+            "description": "Finish a closed scholarship call (CLOSED -> FINISHED)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/scholarships/calls/{id}/cancel",
+            "description": "Cancel a scholarship call (DRAFT/PUBLISHED -> CANCELLED)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/scholarships/calls/{id}/requirements",
+            "description": "Add a requirement to a scholarship call",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "description", "type": "string", "required": true, "constraints": "length 1-2000" }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/scholarships/calls/{id}/requirements/{requirementId}",
+            "description": "Remove a requirement from a scholarship call",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              { "in": "path", "name": "requirementId", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/scholarships/calls/{id}/courses",
+            "description": "Add a course to a scholarship call",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "courseId", "type": "uuid", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/scholarships/calls/{id}/courses/{courseId}",
+            "description": "Remove a course from a scholarship call",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              { "in": "path", "name": "courseId", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/scholarships/calls/{id}/assign-slot",
+            "description": "Assign a slot of a scholarship call (consumes one available slot)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "GET",
+            "path": "/scholarships/applications",
+            "description": "Get scholarship applications of a call (paginated)",
+            "inputs": [
+              { "in": "query", "name": "callId", "type": "uuid", "required": true },
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "status", "type": "enum", "required": false, "values": ["PENDING", "UNDER_REVIEW", "APPROVED", "REJECTED", "CANCELLED"] },
+              { "in": "query", "name": "search", "type": "string", "required": false }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [
+                  {
+                    "id": "uuid",
+                    "studentId": "uuid",
+                    "name": "string",
+                    "lastName": "string",
+                    "email": "string",
+                    "phone": "string",
+                    "photo": "string | null",
+                    "courseIds": ["uuid"],
+                    "status": "enum",
+                    "applicationDate": "string (date)",
+                    "infoSentAt": "string (date) | null"
+                  }
+                ],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/scholarships/applications/{id}",
+            "description": "Get a scholarship application by id",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "id": "uuid",
+                "studentId": "uuid",
+                "callId": "uuid",
+                "contact": {
+                  "photo": "string | null",
+                  "name": "string",
+                  "lastName": "string",
+                  "phone": "string",
+                  "email": "string"
+                },
+                "courseIds": ["uuid"],
+                "status": "enum",
+                "applicationDate": "string (date)",
+                "infoSentAt": "string (date) | null",
+                "notes": [{ "id": "uuid", "official": { "id": "uuid", "name": "string", "lastName": "string", "photo": "string | null" }, "comment": "string", "date": "string (date)" }]
+              }
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/scholarships/applications",
+            "description": "Create a scholarship application",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "studentId", "type": "uuid", "required": true },
+                  { "name": "callId", "type": "uuid", "required": true },
+                  { "name": "courseIds", "type": "uuid[]", "required": true, "constraints": "non-empty" },
+                  { "name": "studentPhoto", "type": "string", "required": false, "constraints": "max 500" },
+                  { "name": "studentName", "type": "string", "required": true, "constraints": "length 1-100" },
+                  { "name": "studentLastName", "type": "string", "required": true, "constraints": "length 1-100" },
+                  { "name": "studentPhone", "type": "string", "required": true, "constraints": "length 1-20" },
+                  { "name": "studentEmail", "type": "string (email)", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/scholarships/applications/{id}/review",
+            "description": "Send a scholarship application to review (PENDING -> UNDER_REVIEW)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/scholarships/applications/{id}/approve",
+            "description": "Approve a scholarship application (UNDER_REVIEW -> APPROVED)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/scholarships/applications/{id}/reject",
+            "description": "Reject a scholarship application (UNDER_REVIEW -> REJECTED)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/scholarships/applications/{id}/cancel",
+            "description": "Cancel a scholarship application (PENDING/UNDER_REVIEW -> CANCELLED)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/scholarships/applications/{id}/notes",
+            "description": "Add an observation note to the application",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "comment", "type": "string", "required": true, "constraints": "length 1-2000" }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/scholarships/applications/{id}/mark-info-sent",
+            "description": "Mark the scholarship information as sent (approved applications only)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          }
+        ]
+      },
+      {
+        "context": "learning",
+        "description": "Enrollments and the student's progress through courses (lessons, evaluations, certificates).",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/learning/enrollments",
+            "description": "Get enrollments of a course (paginated)",
+            "inputs": [
+              { "in": "query", "name": "courseId", "type": "uuid", "required": true },
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "status", "type": "enum", "required": false, "values": ["INSCRIBED", "IN_PROGRESS", "FINISHED", "ABANDONED"] },
+              { "in": "query", "name": "origin", "type": "enum", "required": false, "values": ["CONVENTIONAL", "BECA"] },
+              { "in": "query", "name": "search", "type": "string", "required": false }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [
+                  {
+                    "id": "uuid",
+                    "studentId": "uuid",
+                    "name": "string",
+                    "lastName": "string",
+                    "email": "string",
+                    "phone": "string",
+                    "photo": "string | null",
+                    "status": "enum",
+                    "originType": "enum",
+                    "inscriptionDate": "string (date)",
+                    "lastAccessDate": "string (date) | null",
+                    "completedLessons": "number"
+                  }
+                ],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/learning/enrollments/{id}",
+            "description": "Get an enrollment by id",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "id": "uuid",
+                "studentId": "uuid",
+                "courseId": "uuid",
+                "contact": {
+                  "photo": "string | null",
+                  "name": "string",
+                  "lastName": "string",
+                  "phone": "string",
+                  "email": "string"
+                },
+                "originType": "enum",
+                "solicitudId": "uuid | null",
+                "status": "enum",
+                "inscriptionDate": "string (date)",
+                "lastAccessDate": "string (date) | null",
+                "lessonProgress": [
+                  {
+                    "lessonId": "uuid",
+                    "moduleId": "uuid",
+                    "status": "enum",
+                    "startDate": "string (date)",
+                    "completedDate": "string (date) | null"
+                  }
+                ],
+                "evaluationResults": [
+                  {
+                    "evaluationId": "uuid",
+                    "score": "number (0-100)",
+                    "attempts": "number",
+                    "approved": "boolean",
+                    "presentationDate": "string (date)",
+                    "durationMinutes": "number"
+                  }
+                ],
+                "certificate": "{ code: string, issueDate: string (date) } | null"
+              }
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/learning/enrollments",
+            "description": "Enroll a student in a course",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "studentId", "type": "uuid", "required": true },
+                  { "name": "courseId", "type": "uuid", "required": true },
+                  { "name": "originType", "type": "enum", "required": true, "values": ["CONVENTIONAL", "BECA"] },
+                  { "name": "solicitudId", "type": "uuid", "required": false, "constraints": "required when originType is BECA" },
+                  { "name": "studentPhoto", "type": "string", "required": false, "constraints": "max 500" },
+                  { "name": "studentName", "type": "string", "required": true, "constraints": "length 1-100" },
+                  { "name": "studentLastName", "type": "string", "required": true, "constraints": "length 1-100" },
+                  { "name": "studentPhone", "type": "string", "required": true, "constraints": "length 1-20" },
+                  { "name": "studentEmail", "type": "string (email)", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/learning/enrollments/{id}/start",
+            "description": "Start the course (INSCRIBED -> IN_PROGRESS)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/learning/enrollments/{id}/access",
+            "description": "Register the last access date",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "date", "type": "string (date)", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/learning/enrollments/{id}/lessons/start",
+            "description": "Start a lesson",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "lessonId", "type": "uuid", "required": true },
+                  { "name": "moduleId", "type": "uuid", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/learning/enrollments/{id}/lessons/complete",
+            "description": "Complete a lesson",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "lessonId", "type": "uuid", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/learning/enrollments/{id}/evaluations/result",
+            "description": "Record an evaluation result",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "evaluationId", "type": "uuid", "required": true },
+                  { "name": "score", "type": "number", "required": true, "constraints": "0-100" },
+                  { "name": "attempts", "type": "number", "required": true, "constraints": "min 1" },
+                  { "name": "durationMinutes", "type": "number", "required": true, "constraints": "min 1" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/learning/enrollments/{id}/finish",
+            "description": "Finish the course (IN_PROGRESS -> FINISHED)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/learning/enrollments/{id}/abandon",
+            "description": "Abandon the course (INSCRIBED/IN_PROGRESS -> ABANDONED)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          },
+          {
+            "method": "POST",
+            "path": "/learning/enrollments/{id}/certificate",
+            "description": "Issue a certificate (finished enrollments only)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid" } }
+          }
+        ]
+      },
+      {
+        "context": "files",
+        "description": "Transversal file serving and signing (shared across contexts).",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/file",
+            "description": "Serve a signed file (raw stream with its mime type)",
+            "inputs": [
+              { "in": "query", "name": "key", "type": "string (storage key)", "required": true },
+              { "in": "query", "name": "expires", "type": "number (epoch ms)", "required": true },
+              { "in": "query", "name": "sign", "type": "string (hmac)", "required": true },
+              { "in": "query", "name": "download", "type": "string", "required": false, "description": "Set to '1' to force the browser to download the file" }
+            ],
+            "output": { "status": 200, "format": { "type": "binary stream", "description": "File bytes with Content-Type resolved from the extension (Cache-Control immutable). 403 if the signature is invalid/expired, 404 if not found." } }
+          },
+          {
+            "method": "POST",
+            "path": "/file/batch",
+            "description": "Sign multiple storage keys and return signed URLs",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "keys", "type": "string[] (storage keys)", "required": true, "constraints": "min 1 item" }
+                ]
+              }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "files": [{ "key": "string", "url": "string (signed url)", "expires": "number (epoch ms)" }]
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/file/public",
+            "description": "Serve a public file from culture/pictures/public (no signature or token required)",
+            "inputs": [
+              { "in": "query", "name": "key", "type": "string (storage key)", "required": true, "description": "Relative key inside the public culture pictures folder" }
+            ],
+            "output": { "status": 200, "format": { "type": "binary stream", "description": "File bytes with Content-Type resolved from the extension (Cache-Control immutable). 404 if not found." } }
+          }
+        ]
+      },
+      {
+        "context": "culture",
+        "description": "Libraries, events and their supporting catalogs (types, activities, services, corregimientos).",
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/culture/libraries",
+            "description": "Create a library",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "max 255" },
+                  { "name": "description", "type": "string", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid", "name": "string" } }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/libraries",
+            "description": "Get all libraries (paginated, with filters)",
+            "inputs": [
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "name", "type": "string", "required": false, "constraints": "max 255" },
+              { "in": "query", "name": "typeId", "type": "uuid", "required": false },
+              { "in": "query", "name": "corregimientoId", "type": "uuid", "required": false },
+              { "in": "query", "name": "status", "type": "enum", "required": false, "values": ["ACTIVE", "INACTIVE", "STANDOUT"] },
+              { "in": "query", "name": "zone", "type": "enum", "required": false, "values": ["NORTH", "CENTER", "EAST", "WEST", "SOUTH"] },
+              { "in": "query", "name": "activityId", "type": "uuid", "required": false },
+              { "in": "query", "name": "serviceId", "type": "uuid", "required": false },
+              { "in": "query", "name": "open", "type": "boolean", "required": false, "description": "Filter by currently open (true) or closed (false)" }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [
+                  {
+                    "id": "uuid",
+                    "name": "string",
+                    "type": "{ id: uuid, name: string } | null",
+                    "direction": "{ lat: number, lon: number, corregimiento: { id, name } | null } | null",
+                    "status": "enum",
+                    "isOpen": "boolean"
+                  }
+                ],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/libraries/locations",
+            "description": "Get library locations for a map",
+            "inputs": [
+              { "in": "query", "name": "zone", "type": "enum", "required": false, "values": ["NORTH", "CENTER", "EAST", "WEST", "SOUTH"] },
+              { "in": "query", "name": "corregimientoId", "type": "uuid", "required": false }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [
+                  {
+                    "id": "uuid",
+                    "name": "string",
+                    "description": "string | null",
+                    "lat": "number | null",
+                    "lon": "number | null",
+                    "zone": "enum | null",
+                    "corregimiento": "string"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/libraries/{id}",
+            "description": "Get a library by id",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "id": "uuid",
+                "name": "string",
+                "type": "{ id: uuid, name: string }",
+                "description": "string",
+                "email": "string",
+                "phone": "string",
+                "status": "enum",
+                "direction": {
+                  "description": "string",
+                  "zone": "enum",
+                  "lat": "number",
+                  "lon": "number",
+                  "corregimiento": { "id": "uuid", "name": "string" }
+                },
+                "activities": [{ "id": "uuid", "name": "string" }],
+                "services": [{ "id": "uuid", "name": "string" }],
+                "dailySchedules": [{ "day": "string", "startTime": "string", "endTime": "string", "closed": "boolean" }],
+                "pictures": [{ "key": "string", "name": "string", "type": "enum", "url": "string" }],
+                "events": [
+                  {
+                    "id": "uuid",
+                    "name": "string",
+                    "schedule": { "date": "string", "initTime": "string", "endTime": "string" },
+                "picture": "{ key: string, name: string, type: enum, url: string } | null"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "method": "PATCH",
+            "path": "/culture/libraries/{id}/activate",
+            "description": "Activate a library (status -> ACTIVE)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/culture/libraries/{id}/deactivate",
+            "description": "Deactivate a library (status -> INACTIVE)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/culture/libraries/{id}/standout",
+            "description": "Stand out a library on the homepage (status -> STANDOUT)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/culture/libraries/{id}/info",
+            "description": "Update library information",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "max 255" },
+                  { "name": "description", "type": "string", "required": true },
+                  { "name": "typeId", "type": "uuid", "required": true },
+                  { "name": "email", "type": "string (email)", "required": true, "constraints": "max 255" },
+                  { "name": "phone", "type": "string", "required": true, "constraints": "max 255" }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/culture/libraries/{id}/direction",
+            "description": "Update the library direction",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "description", "type": "string", "required": true },
+                  { "name": "zone", "type": "enum", "required": true, "values": ["NORTH", "CENTER", "EAST", "WEST", "SOUTH"] },
+                  { "name": "lon", "type": "number", "required": true },
+                  { "name": "lat", "type": "number", "required": true },
+                  { "name": "corregimientoId", "type": "uuid", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          },
+          {
+            "method": "PATCH",
+            "path": "/culture/libraries/{id}/schedule",
+            "description": "Update a daily schedule of the library",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "day", "type": "number", "required": true, "constraints": "1-7 (1=Monday, 7=Sunday)" },
+                  { "name": "startTimeHour", "type": "number", "required": true, "constraints": "0-23" },
+                  { "name": "endTimeHour", "type": "number", "required": true, "constraints": "0-23" },
+                  { "name": "startTimeMin", "type": "number", "required": true, "constraints": "0-59" },
+                  { "name": "endTimeMin", "type": "number", "required": true, "constraints": "0-59" },
+                  { "name": "closed", "type": "boolean", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          },
+          {
+            "method": "POST",
+            "path": "/culture/libraries/{id}/activities",
+            "description": "Add an activity to the library",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "activityId", "type": "uuid", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/culture/libraries/{id}/activities/{activityId}",
+            "description": "Remove an activity from the library",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              { "in": "path", "name": "activityId", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          },
+          {
+            "method": "POST",
+            "path": "/culture/libraries/{id}/services",
+            "description": "Add a service to the library",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "serviceId", "type": "uuid", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/culture/libraries/{id}/services/{serviceId}",
+            "description": "Remove a service from the library",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              { "in": "path", "name": "serviceId", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          },
+          {
+            "method": "POST",
+            "path": "/culture/events",
+            "description": "Create an event",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "max 255" },
+                  { "name": "typeId", "type": "uuid", "required": true },
+                  { "name": "libraryId", "type": "uuid", "required": true },
+                  { "name": "day", "type": "number", "required": true, "constraints": "1-31" },
+                  { "name": "month", "type": "number", "required": true, "constraints": "1-12" },
+                  { "name": "year", "type": "number", "required": true, "constraints": "min 2020" },
+                  { "name": "startTimeHour", "type": "number", "required": true, "constraints": "0-23" },
+                  { "name": "startTimeMin", "type": "number", "required": true, "constraints": "0-59" },
+                  { "name": "endTimeHour", "type": "number", "required": true, "constraints": "0-23" },
+                  { "name": "endTimeMin", "type": "number", "required": true, "constraints": "0-59" },
+                  { "name": "description", "type": "string", "required": true }
+                ]
+              }
+            ],
+            "output": {
+              "status": 201,
+              "format": {
+                "id": "uuid",
+                "name": "string",
+                "schedule": { "date": "string (dd-mm-yyyy)", "initTime": "string (hh:mm AM/PM)", "endTime": "string (hh:mm AM/PM)" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/events",
+            "description": "Get all events (paginated, with filters)",
+            "inputs": [
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "name", "type": "string", "required": false, "constraints": "max 255" },
+              { "in": "query", "name": "typeId", "type": "uuid", "required": false },
+              { "in": "query", "name": "libraryId", "type": "uuid", "required": false }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [
+                  {
+                    "id": "uuid",
+                    "picture": "{ key: string, name: string, type: enum, url: string } | null",
+                    "name": "string",
+                    "type": { "id": "uuid", "name": "string" },
+                    "library": { "id": "uuid", "name": "string" },
+                    "schedule": { "date": "string (dd-mm-yyyy)", "initTime": "string (hh:mm AM/PM)" }
+                  }
+                ],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/events/{id}",
+            "description": "Get an event by id",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "id": "uuid",
+                "name": "string",
+                "type": { "id": "uuid", "name": "string" },
+                "library": { "id": "uuid", "name": "string" },
+                "schedule": { "date": "string", "initTime": "string", "endTime": "string" },
+                "description": "string",
+                "picture": "{ key: string, name: string, type: enum, url: string } | null"
+              }
+            }
+          },
+          {
+            "method": "PATCH",
+            "path": "/culture/events/{id}",
+            "description": "Update event information",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true },
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "max 255" },
+                  { "name": "typeId", "type": "uuid", "required": true },
+                  { "name": "libraryId", "type": "uuid", "required": true },
+                  { "name": "day", "type": "number", "required": true, "constraints": "1-31" },
+                  { "name": "month", "type": "number", "required": true, "constraints": "1-12" },
+                  { "name": "year", "type": "number", "required": true, "constraints": "min 2020" },
+                  { "name": "startTimeHour", "type": "number", "required": true, "constraints": "0-23" },
+                  { "name": "startTimeMin", "type": "number", "required": true, "constraints": "0-59" },
+                  { "name": "endTimeHour", "type": "number", "required": true, "constraints": "0-23" },
+                  { "name": "endTimeMin", "type": "number", "required": true, "constraints": "0-59" },
+                  { "name": "description", "type": "string", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          },
+          {
+            "method": "POST",
+            "path": "/culture/type-libraries",
+            "description": "Create a type library",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "max 255" }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid", "name": "string" } }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/type-libraries",
+            "description": "Get all type libraries (paginated)",
+            "inputs": [
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "name", "type": "string", "required": false, "constraints": "max 255" }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [{ "id": "uuid", "name": "string" }],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/type-libraries/{id}",
+            "description": "Get a type library by id",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid", "name": "string" } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/culture/type-libraries/{id}",
+            "description": "Delete a type library (soft delete)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          },
+          {
+            "method": "POST",
+            "path": "/culture/type-events",
+            "description": "Create a type event",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "max 255" }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid", "name": "string" } }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/type-events",
+            "description": "Get all type events (paginated)",
+            "inputs": [
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "name", "type": "string", "required": false, "constraints": "max 255" }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [{ "id": "uuid", "name": "string" }],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/type-events/{id}",
+            "description": "Get a type event by id",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid", "name": "string" } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/culture/type-events/{id}",
+            "description": "Delete a type event (soft delete)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          },
+          {
+            "method": "POST",
+            "path": "/culture/category-activities",
+            "description": "Create a category activity",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "max 255" }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid", "name": "string" } }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/category-activities",
+            "description": "Get all category activities (paginated)",
+            "inputs": [
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "name", "type": "string", "required": false, "constraints": "max 255" }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [{ "id": "uuid", "name": "string" }],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/category-activities/{id}",
+            "description": "Get a category activity by id",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid", "name": "string" } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/culture/category-activities/{id}",
+            "description": "Delete a category activity (soft delete)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          },
+          {
+            "method": "POST",
+            "path": "/culture/service-libraries",
+            "description": "Create a service library",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "max 255" }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid", "name": "string" } }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/service-libraries",
+            "description": "Get all service libraries (paginated)",
+            "inputs": [
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "name", "type": "string", "required": false, "constraints": "max 255" }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [{ "id": "uuid", "name": "string" }],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/service-libraries/{id}",
+            "description": "Get a service library by id",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid", "name": "string" } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/culture/service-libraries/{id}",
+            "description": "Delete a service library (soft delete)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          },
+          {
+            "method": "POST",
+            "path": "/culture/corregimientos",
+            "description": "Create a corregimiento",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "max 255" }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid", "name": "string" } }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/corregimientos",
+            "description": "Get all corregimientos (paginated)",
+            "inputs": [
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "name", "type": "string", "required": false, "constraints": "max 255" }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [{ "id": "uuid", "name": "string" }],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/corregimientos/{id}",
+            "description": "Get a corregimiento by id",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid", "name": "string" } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/culture/corregimientos/{id}",
+            "description": "Delete a corregimiento (soft delete)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          },
+          {
+            "method": "POST",
+            "path": "/culture/activity-libraries",
+            "description": "Create an activity library",
+            "inputs": [
+              {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "contentType": "application/json",
+                "fields": [
+                  { "name": "name", "type": "string", "required": true, "constraints": "max 255" },
+                  { "name": "description", "type": "string", "required": true },
+                  { "name": "categoryId", "type": "uuid", "required": true }
+                ]
+              }
+            ],
+            "output": { "status": 201, "format": { "id": "uuid", "name": "string" } }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/activity-libraries",
+            "description": "Get all activity libraries (paginated, with filters)",
+            "inputs": [
+              { "in": "query", "name": "page", "type": "number", "required": false, "default": 1 },
+              { "in": "query", "name": "limit", "type": "number", "required": false, "default": 10, "constraints": "1-100" },
+              { "in": "query", "name": "name", "type": "string", "required": false, "constraints": "max 255" },
+              { "in": "query", "name": "categoryId", "type": "uuid", "required": false }
+            ],
+            "output": {
+              "status": 200,
+              "format": {
+                "data": [{ "id": "uuid", "name": "string", "description": "string", "categoryId": "uuid" }],
+                "pagination": { "total": "number" }
+              }
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/culture/activity-libraries/{id}",
+            "description": "Get an activity library by id",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "id": "uuid", "name": "string", "description": "string", "categoryId": "uuid" } }
+          },
+          {
+            "method": "DELETE",
+            "path": "/culture/activity-libraries/{id}",
+            "description": "Delete an activity library (soft delete)",
+            "inputs": [
+              { "in": "path", "name": "id", "type": "uuid", "required": true }
+            ],
+            "output": { "status": 200, "format": { "success": true } }
+          }
+        ]
+      }
+    ]
+  }
+}
