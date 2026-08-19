@@ -5,5 +5,5 @@ export interface ApiConfig {
 
 export const apiConfig: ApiConfig = {
   baseUrl: '/api/v1',
-  useMocks: true
+  useMocks: false
 };
