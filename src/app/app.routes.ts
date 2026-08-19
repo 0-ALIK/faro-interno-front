@@ -11,6 +11,10 @@ export const routes: Routes = [
       {
         path: 'catalog',
         loadChildren: () => import('./modules/catalog/catalog.routes').then((m) => m.catalogRoutes)
+      },
+      {
+        path: 'formation',
+        loadChildren: () => import('./modules/formation/formation.routes').then((m) => m.formationRoutes)
       }
     ]
   },

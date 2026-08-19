@@ -130,3 +130,91 @@ modules/catalog/
 - **`shared/` only holds genuinely generic code** (button, modal, pipes, directives, utils). Domain-specific code belongs in the feature.
 - **`core/` holds only cross-cutting Angular infrastructure** (auth, http interceptors, guards, global config).
 - Use `models/` for domain types, `api/*.dto.ts` for wire format, and `api/*.mapper.ts` to convert between them.
+
+## Project: Faro Interno — Municipality of Panama
+
+### Stack
+
+| Dep | Version | Notes |
+|---|---|---|
+| Angular | 21 | |
+| PrimeNG | ~21.1.9 | MIT license (v22 is premium) |
+| @primeuix/themes | 3.x | Presets Aura-based |
+| Tailwind CSS | 4.1 | CSS-first config via `@theme` |
+| tailwindcss-primeui | 0.6 | Bridges PrimeNG tokens → Tailwind utilities |
+| TypeScript | ~5.9 | |
+| Vitest | 4.0 | Unit tests with jsdom |
+| Quill | latest | Dynamic import by PrimeNG Editor |
+
+### Mock API Pattern (CRITICAL)
+
+The project uses a mock interceptor so the frontend works without a real backend. **When the backend is ready, only `api.config.ts` changes.**
+
+```
+UI → Service (signals) → API (HttpClient) → Mock interceptor intercepts
+                                    ↓
+                         Real backend: set useMocks = false
+```
+
+- **`core/http/mock-api.ts`**: Generic route matcher with `:id` params
+- **`core/config/api.config.ts`**: `useMocks: true` flag
+- **Each module registers its mocks in `app.config.ts`** via `registerMockEndpoints()`
+- **The API service layer maps EXACTLY to `faro-interno-endpoints.json`** — mock responses mirror the real contract
+- **Mock data uses realistic Panamanian content** (courses, categories, providers)
+
+### Design System Tokens
+
+| Token | Tailwind | Value |
+|---|---|---|
+| Primary | `primary-*` | `#0660FF` scale |
+| Surface | `surface-*` | Neutral grays |
+| Body font | `font-sans` | Montserrat (self-hosted) |
+| Display font | `font-display` | Noka (self-hosted) |
+| Brand font | `font-brand` | Prometo (self-hosted) |
+| Text sizes | `text-display/h1/h2/title/body/caption` | 44/32/26/18/15/12px |
+| Shadows | `shadow-xs/sm/md/lg/focus` | Blue-tinted `rgba(14,34,93)` |
+
+**Fonts are self-hosted in `public/fonts/`** — no Google Fonts CDN.
+
+### Coding Conventions
+
+- **Code in English**, UI labels in Spanish
+- **Always use PrimeNG components and `pi` icons** — avoid raw HTML where PrimeNG has a component
+- **No comments** in code
+- **No `ngClass`/`ngStyle`** — use `class`/`style` bindings
+- **No separate `.css`/`.scss` files** — Tailwind utilities inline
+- **`@if`/`@for`/`@switch`** — never `*ngIf`/`*ngFor`
+- **Signals everywhere** — `signal()`, `computed()`, `input()`, `output()`
+- **`inject()`** — never constructor injection
+- **Angular 21**: no `standalone: true` (default), no `OnPush` (default)
+
+### UI Patterns
+
+- **Hero header**: `bg-gradient-to-br from-primary-600 via-primary-700 to-primary-950` with decorative blur elements
+- **Table headers**: `!bg-primary-50 !text-primary-900 uppercase`
+- **Cards**: `rounded-2xl border border-surface-200 bg-surface-0 shadow-sm`
+- **Table row actions**: `rounded-xl` icon buttons with `pi pi-*`
+- **Toast feedback** on every CRUD action
+- **Loading spinner**: `p-progressSpinner`
+- **Dialogs**: `p-dialog` with `[modal]="true"` for create/edit forms
+
+### Angular Budget
+
+```json
+{ "type": "initial", "maximumWarning": "2MB", "maximumError": "3MB" }
+```
+
+### Modules Status
+
+| Module | Status | Notes |
+|---|---|---|
+| **catalog** | ✅ Complete | Courses, categories, providers, competencies, tags, lifecycle actions |
+| **formation** | ✅ Complete | Municipal courses, modules (up/down), lessons (Quill editor), evaluations (dedicated page) |
+| scholarships | 🔲 Pending | Calls, applications, state machine |
+| learning | 🔲 Pending | Enrollments, progress, certificates |
+| culture | 🔲 Pending | Libraries, events, corregimientos |
+| files | 🔲 Pending | Signed URLs, batch signing |
+
+### API Documentation
+
+All endpoints are defined in **`faro-interno-endpoints.json`** at the project root. This is the source of truth for the API contract. Each module's `api/*.api.ts` maps 1:1 to these endpoints.

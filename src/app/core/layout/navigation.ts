@@ -22,9 +22,14 @@ export const NAV_SECTIONS: NavSection[] = [
     ]
   },
   {
+    label: 'Formación',
+    items: [
+      { label: 'Cursos municipales', icon: 'pi pi-graduation-cap', routerLink: '/formation/courses' }
+    ]
+  },
+  {
     label: 'Módulos',
     items: [
-      { label: 'Formación', icon: 'pi pi-graduation-cap', disabled: true },
       { label: 'Becas', icon: 'pi pi-heart', disabled: true },
       { label: 'Aprendizaje', icon: 'pi pi-users', disabled: true },
       { label: 'Cultura', icon: 'pi pi-sun', disabled: true }
