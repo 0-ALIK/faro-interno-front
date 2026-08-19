@@ -1,5 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -8,9 +7,12 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
+import { PaginatorModule } from 'primeng/paginator';
 
 import { CourseStateService } from '../../services/course-state.service';
+import { CatalogStateService } from '../../services/catalog-state.service';
 import { StatusTag } from '../components/status-tag';
+import { CreateCourseDialog } from '../components/create-course-dialog';
 import type { CourseLevel, CourseModality, CourseOrigin, CourseStatus } from '../../models/catalog.model';
 import {
   COURSE_LEVEL_LABELS,
@@ -22,7 +24,7 @@ import {
 
 @Component({
   selector: 'app-course-list',
-  imports: [DatePipe, FormsModule, RouterLink, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, SelectModule, TableModule, StatusTag],
+  imports: [FormsModule, RouterLink, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, SelectModule, TableModule, PaginatorModule, StatusTag, CreateCourseDialog],
   template: `
     <div class="flex flex-col gap-6">
       <section
@@ -45,13 +47,13 @@ import {
             <h1 class="mt-2 text-h1 text-white">Cursos</h1>
             <p class="mt-2 max-w-xl text-body text-primary-100">
               Administra el catálogo de formación del municipio.
-              {{ courseState.filteredCourses().length }} curso(s) registrado(s).
+              {{ courseState.total() }} curso(s) registrado(s).
             </p>
           </div>
           <p-button
             label="Nuevo curso"
             icon="pi pi-plus"
-            routerLink="/catalog/courses/new"
+            (onClick)="showCreate.set(true)"
             styleClass="!bg-white !text-primary-700 !border-white shadow-md"
           />
         </div>
@@ -78,17 +80,40 @@ import {
             optionValue="value"
             placeholder="Estado"
             [showClear]="true"
-            class="w-full md:w-56"
+            (onChange)="onFilterChange()"
+            class="w-full md:w-44"
+          />
+
+          <p-select
+            [(ngModel)]="courseState.categoryFilter"
+            [options]="catalogState.categoryOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Categoría"
+            [showClear]="true"
+            (onChange)="onFilterChange()"
+            class="w-full md:w-44"
+          />
+
+          <p-select
+            [(ngModel)]="courseState.providerFilter"
+            [options]="catalogState.providerOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Proveedor"
+            [showClear]="true"
+            (onChange)="onFilterChange()"
+            class="w-full md:w-44"
           />
         </div>
         <p class="text-caption text-muted-color">
-          {{ courseState.filteredCourses().length }} resultado(s)
+          {{ courseState.total() }} resultado(s)
         </p>
       </div>
 
       <div class="overflow-hidden rounded-2xl border border-surface-200 bg-surface-0 shadow-sm">
         <p-table
-          [value]="courseState.filteredCourses()"
+          [value]="courseState.courses()"
           [loading]="courseState.loading()"
           dataKey="id"
           [tableStyle]="{ 'min-width': '64rem' }"
@@ -109,9 +134,13 @@ import {
             <tr class="transition-colors hover:bg-surface-50">
               <td>
                 <div class="flex items-center gap-3">
-                  <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-700">
-                    <span class="pi pi-book-open text-sm" aria-hidden="true"></span>
-                  </span>
+                  @if (courseState.getCoverUrl(course.cover?.key); as coverUrl) {
+                    <img [src]="coverUrl" [alt]="course.title" class="h-9 w-9 shrink-0 rounded-xl object-cover" />
+                  } @else {
+                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-700">
+                      <span class="pi pi-book-open text-sm" aria-hidden="true"></span>
+                    </span>
+                  }
                   <a [routerLink]="['/catalog/courses', course.id]" class="cursor-pointer font-semibold text-surface-900 hover:text-primary-700">{{ course.title }}</a>
                 </div>
               </td>
@@ -139,7 +168,7 @@ import {
                 @if (course.publishedAt) {
                   <span class="inline-flex items-center gap-1.5 text-sm text-surface-600">
                     <span class="pi pi-calendar text-xs text-muted-color" aria-hidden="true"></span>
-                    {{ course.publishedAt | date: 'dd/MM/yyyy' }}
+                    {{ course.publishedAt }}
                   </span>
                 } @else {
                   <span class="text-sm text-surface-400">—</span>
@@ -156,23 +185,84 @@ import {
             </tr>
           </ng-template>
         </p-table>
+
+        @if (courseState.total() > 10) {
+          <p-paginator
+            [rows]="10"
+            [totalRecords]="courseState.total()"
+            [first]="(courseState.page() - 1) * 10"
+            (onPageChange)="onPageChange($event)"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
+            [rowsPerPageOptions]="[10, 20, 50]"
+          />
+        }
       </div>
+
+      <app-create-course-dialog
+        [visible]="showCreate()"
+        [saving]="courseState.saving()"
+        (created)="onCourseCreated($event)"
+        (close)="showCreate.set(false)"
+      />
     </div>
   `
 })
 export class CourseList implements OnInit {
   protected readonly courseState = inject(CourseStateService);
+  protected readonly catalogState = inject(CatalogStateService);
+  protected readonly showCreate = signal(false);
 
   protected readonly statusOptions: { label: string; value: CourseStatus }[] = (
     Object.keys(COURSE_STATUS_LABELS) as CourseStatus[]
   ).map((value) => ({ label: COURSE_STATUS_LABELS[value], value }));
 
-  ngOnInit(): void {
-    void this.courseState.load();
+  async ngOnInit(): Promise<void> {
+    this.courseState.page.set(1);
+    this.courseState.search.set('');
+    this.courseState.statusFilter.set(null);
+    this.courseState.categoryFilter.set(null);
+    this.courseState.providerFilter.set(null);
+    await this.catalogState.loadAll();
+    await this.courseState.load();
+  }
+
+  protected async onCourseCreated(data: { title: string; modality: string; level: string; origin: string; enrollmentMode: string; description: string }): Promise<void> {
+    const formData = new FormData();
+    formData.append('title', data.title);
+    formData.append('modality', data.modality);
+    formData.append('level', data.level);
+    formData.append('origin', data.origin);
+    formData.append('enrollmentMode', data.enrollmentMode);
+    if (data.description) formData.append('description', data.description);
+
+    const newId = await this.courseState.createCourse(formData);
+    this.showCreate.set(false);
+    this.courseState.goToEdit(newId);
   }
 
   protected onSearchInput(event: Event): void {
     this.courseState.search.set((event.target as HTMLInputElement).value);
+    this.debounceSearch();
+  }
+
+  private searchTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  private debounceSearch(): void {
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.courseState.setPage(1);
+      void this.courseState.load();
+    }, 400);
+  }
+
+  protected onFilterChange(): void {
+    this.courseState.setPage(1);
+    void this.courseState.load();
+  }
+
+  protected onPageChange(event: { page: number; rows: number }): void {
+    this.courseState.setPage(event.page + 1);
   }
 
   protected modalityLabel(value: CourseModality | null): string {

@@ -6,6 +6,7 @@ import { TableModule } from 'primeng/table';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
+import { PaginatorModule } from 'primeng/paginator';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
@@ -22,6 +23,7 @@ import { EntityDialog } from '../components/entity-dialog';
     IconFieldModule,
     InputIconModule,
     InputTextModule,
+    PaginatorModule,
     ToastModule,
     EntityDialog
   ],
@@ -37,10 +39,27 @@ import { EntityDialog } from '../components/entity-dialog';
         <p-button label="Nueva categoría" icon="pi pi-plus" (onClick)="openCreate()" />
       </div>
 
+      <div class="flex flex-col gap-3 rounded-2xl border border-surface-200 bg-surface-0 p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+        <p-iconfield class="w-full md:w-80">
+          <p-inputicon class="pi pi-search" />
+          <input
+            pInputText
+            type="search"
+            [value]="catalogState.categorySearch()"
+            (input)="onSearchInput($event)"
+            placeholder="Buscar categoría…"
+            class="w-full"
+          />
+        </p-iconfield>
+        <p class="text-caption text-muted-color">
+          {{ catalogState.categoryTotal() }} resultado(s)
+        </p>
+      </div>
+
       <div class="overflow-hidden rounded-2xl border border-surface-200 bg-surface-0 shadow-sm">
         <p-table
           [value]="catalogState.categories()"
-          [loading]="loading()"
+          [loading]="catalogState.loading()"
           dataKey="id"
           [tableStyle]="{ 'min-width': '40rem' }"
         >
@@ -66,6 +85,18 @@ import { EntityDialog } from '../components/entity-dialog';
             </tr>
           </ng-template>
         </p-table>
+
+        @if (catalogState.categoryTotal() > 10) {
+          <p-paginator
+            [rows]="10"
+            [totalRecords]="catalogState.categoryTotal()"
+            [first]="(catalogState.categoryPage() - 1) * 10"
+            (onPageChange)="onPageChange($event)"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
+            [rowsPerPageOptions]="[10, 20, 50]"
+          />
+        }
       </div>
     </div>
 
@@ -83,18 +114,32 @@ export class CategoryList implements OnInit {
   protected readonly catalogState = inject(CatalogStateService);
   private readonly messageService = inject(MessageService);
 
-  protected readonly loading = signal(false);
   protected readonly saving = signal(false);
   protected readonly dialogVisible = signal(false);
   protected readonly dialogHeader = signal('Crear categoría');
   protected readonly dialogInitialValue = signal('');
   private editingId: string | null = null;
 
+  private searchTimeout: ReturnType<typeof setTimeout> | null = null;
+
   ngOnInit(): void {
-    if (this.catalogState.categories().length === 0) {
-      this.loading.set(true);
-      this.catalogState.loadAll().finally(() => this.loading.set(false));
-    }
+    this.catalogState.categoryPage.set(1);
+    this.catalogState.categorySearch.set('');
+    void this.catalogState.loadCategories();
+  }
+
+  protected onSearchInput(event: Event): void {
+    this.catalogState.categorySearch.set((event.target as HTMLInputElement).value);
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.catalogState.categoryPage.set(1);
+      void this.catalogState.loadCategories();
+    }, 400);
+  }
+
+  protected onPageChange(event: { page: number; rows: number }): void {
+    this.catalogState.categoryPage.set(event.page + 1);
+    void this.catalogState.loadCategories();
   }
 
   protected openCreate(): void {
