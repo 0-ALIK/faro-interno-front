@@ -1,3 +1,5 @@
+import type { CourseStatus } from '../../catalog/models/catalog.model';
+import type { CourseStatusDto } from '../../catalog/api/catalog.dto';
 import type {
   Answer,
   Evaluation,
@@ -24,13 +26,21 @@ import type {
   ResourceDto
 } from './formation.dto';
 
+const STATUS_MAP: Record<CourseStatusDto, CourseStatus> = {
+  borrador: 'DRAFT',
+  'en revision': 'UNDER_REVIEW',
+  publicado: 'PUBLISHED',
+  suspendido: 'SUSPENDED',
+  archivado: 'ARCHIVED'
+};
+
 export function mapMunicipalCourseSummary(dto: MunicipalCourseListItemDto): MunicipalCourseSummary {
   return {
     id: dto.id,
     courseId: dto.courseId,
     courseTitle: dto.courseTitle,
     courseCover: dto.courseCover ?? null,
-    courseStatus: dto.courseStatus,
+    courseStatus: STATUS_MAP[dto.courseStatus],
     moduleCount: dto.moduleCount,
     lessonCount: dto.lessonCount
   };

@@ -119,43 +119,47 @@ import type { QuestionType } from '../../models/formation.model';
                 <div class="flex flex-col gap-2 ml-11">
                   @for (answer of question.answers; track answer.id) {
                     <div class="flex items-center gap-3 rounded-lg px-3 py-2" [class]="answer.correct ? 'bg-green-50 border border-green-200' : 'bg-surface-50'">
-                      <p-radiobutton
-                        [name]="'correct_' + question.id"
-                        [inputId]="answer.id"
-                        [value]="true"
-                        [ngModel]="answer.correct"
-                        [disabled]="true"
-                      />
-                      <label [for]="answer.id" class="text-body flex-1" [class]="answer.correct ? 'text-green-800 font-medium' : 'text-surface-700'">
-                        {{ answer.description }}
-                        @if (answer.correct) {
-                          <span class="pi pi-check-circle ml-2 text-green-600 text-xs"></span>
-                        }
-                      </label>
                       <p-button
-                        icon="pi pi-trash"
+                        [icon]="answer.correct ? 'pi pi-check-circle' : 'pi pi-circle'"
                         [rounded]="true"
                         [text]="true"
-                        severity="danger"
+                        [severity]="answer.correct ? 'success' : 'secondary'"
                         size="small"
                         [disabled]="formationState.saving()"
-                        (onClick)="deleteAnswer(question.id, answer.id)"
+                        (onClick)="toggleCorrectAnswer(question.id, answer.id)"
+                        [pTooltip]="answer.correct ? 'Respuesta correcta (clic para cambiar)' : 'Marcar como correcta'"
                       />
+                      <span class="text-body flex-1" [class]="answer.correct ? 'text-green-800 font-medium' : 'text-surface-700'">
+                        {{ answer.description }}
+                      </span>
+                      @if (question.type === 'MULTIPLE_CHOICE') {
+                        <p-button
+                          icon="pi pi-trash"
+                          [rounded]="true"
+                          [text]="true"
+                          severity="danger"
+                          size="small"
+                          [disabled]="formationState.saving()"
+                          (onClick)="deleteAnswer(question.id, answer.id)"
+                        />
+                      }
                     </div>
                   }
                 </div>
 
-                <div class="ml-11 mt-3">
-                  <p-button
-                    label="Agregar respuesta"
-                    icon="pi pi-plus"
-                    severity="secondary"
-                    [text]="true"
-                    size="small"
-                    [disabled]="formationState.saving()"
-                    (onClick)="openAddAnswerDialog(question.id, question.type)"
-                  />
-                </div>
+                @if (question.type === 'MULTIPLE_CHOICE') {
+                  <div class="ml-11 mt-3">
+                    <p-button
+                      label="Agregar respuesta"
+                      icon="pi pi-plus"
+                      severity="secondary"
+                      [text]="true"
+                      size="small"
+                      [disabled]="formationState.saving()"
+                      (onClick)="openAddAnswerDialog(question.id)"
+                    />
+                  </div>
+                }
               </div>
             }
           }
@@ -264,43 +268,72 @@ import type { QuestionType } from '../../models/formation.model';
               }
             </div>
           </div>
-          <p-divider />
-          <p class="text-caption font-semibold uppercase tracking-wider text-muted-color">Respuestas</p>
-          @for (ans of newAnswers(); track ans.index) {
-            <div class="flex items-center gap-2">
-              <p-radiobutton
-                [name]="'newCorrect'"
-                [inputId]="'new_ans_' + ans.index"
-                [value]="ans.index"
-                [ngModel]="newCorrectIndex()"
-                (ngModelChange)="newCorrectIndex.set($event)"
-              />
-              <input
-                pInputText
-                [ngModel]="ans.description"
-                (ngModelChange)="updateAnswer(ans.index, $event)"
-                placeholder="Respuesta..."
-                class="flex-1"
-              />
-              <p-button
-                icon="pi pi-times"
-                [rounded]="true"
-                [text]="true"
-                severity="danger"
-                size="small"
-                (onClick)="removeAnswer(ans.index)"
-              />
+
+          @if (newQuestionType() === 'TRUE_FALSE') {
+            <div class="flex flex-col gap-1.5">
+              <label class="text-caption font-semibold uppercase tracking-wider text-muted-color">Respuesta correcta</label>
+              <div class="flex gap-4">
+                <div class="flex items-center gap-2">
+                  <p-radiobutton
+                    name="tfCorrect"
+                    inputId="tf_verdadero"
+                    value="VERDADERO"
+                    [ngModel]="tfCorrectAnswer()"
+                    (ngModelChange)="tfCorrectAnswer.set($event)"
+                  />
+                  <label for="tf_verdadero" class="text-body">Verdadero</label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <p-radiobutton
+                    name="tfCorrect"
+                    inputId="tf_falso"
+                    value="FALSO"
+                    [ngModel]="tfCorrectAnswer()"
+                    (ngModelChange)="tfCorrectAnswer.set($event)"
+                  />
+                  <label for="tf_falso" class="text-body">Falso</label>
+                </div>
+              </div>
             </div>
+          } @else {
+            <p-divider />
+            <p class="text-caption font-semibold uppercase tracking-wider text-muted-color">Respuestas</p>
+            @for (ans of newAnswers(); track ans.index) {
+              <div class="flex items-center gap-2">
+                <p-radiobutton
+                  [name]="'newCorrect'"
+                  [inputId]="'new_ans_' + ans.index"
+                  [value]="ans.index"
+                  [ngModel]="newCorrectIndex()"
+                  (ngModelChange)="newCorrectIndex.set($event)"
+                />
+                <input
+                  pInputText
+                  [ngModel]="ans.description"
+                  (ngModelChange)="updateAnswer(ans.index, $event)"
+                  placeholder="Respuesta..."
+                  class="flex-1"
+                />
+                <p-button
+                  icon="pi pi-times"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="danger"
+                  size="small"
+                  (onClick)="removeAnswer(ans.index)"
+                />
+              </div>
+            }
+            <p-button
+              label="Agregar respuesta"
+              icon="pi pi-plus"
+              severity="secondary"
+              [text]="true"
+              size="small"
+              [disabled]="newAnswers().length >= 6"
+              (onClick)="addAnswer()"
+            />
           }
-          <p-button
-            label="Agregar respuesta"
-            icon="pi pi-plus"
-            severity="secondary"
-            [text]="true"
-            size="small"
-            [disabled]="newAnswers().length >= 6"
-            (onClick)="addAnswer()"
-          />
         </div>
         <ng-template #footer>
           <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="questionDialogVisible.set(false)" />
@@ -308,7 +341,7 @@ import type { QuestionType } from '../../models/formation.model';
             label="Crear pregunta"
             icon="pi pi-check"
             [loading]="formationState.saving()"
-            [disabled]="!newStatement().trim() || newAnswers().length < 2 || newCorrectIndex() === null"
+            [disabled]="!canCreateQuestion()"
             (onClick)="createQuestion()"
           />
         </ng-template>
@@ -381,6 +414,7 @@ export class EvaluationPage implements OnInit {
     { index: 1, description: '' }
   ]);
   protected readonly newCorrectIndex = signal<number | null>(null);
+  protected readonly tfCorrectAnswer = signal<'VERDADERO' | 'FALSO'>('VERDADERO');
   private nextAnswerIndex = 2;
 
   protected readonly answerDialogVisible = signal(false);
@@ -396,6 +430,10 @@ export class EvaluationPage implements OnInit {
     if (this.moduleId) {
       void this.formationState.loadEvaluation(this.moduleId);
     }
+  }
+
+  protected canCreateQuestion(): boolean {
+    return this.newStatement().trim().length > 0;
   }
 
   protected openCreateEvaluationDialog(): void {
@@ -436,6 +474,7 @@ export class EvaluationPage implements OnInit {
     this.newQuestionType.set('MULTIPLE_CHOICE');
     this.newAnswers.set([{ index: 0, description: '' }, { index: 1, description: '' }]);
     this.newCorrectIndex.set(null);
+    this.tfCorrectAnswer.set('VERDADERO');
     this.nextAnswerIndex = 2;
     this.questionDialogVisible.set(true);
   }
@@ -457,23 +496,20 @@ export class EvaluationPage implements OnInit {
 
   protected async createQuestion(): Promise<void> {
     try {
-      await this.formationState.addQuestion(this.moduleId, this.newStatement(), this.newQuestionType());
-      const evaluation = this.formationState.currentEvaluation();
-      if (evaluation) {
-        const questionId = evaluation.questions[evaluation.questions.length - 1]?.id;
-        if (questionId) {
-          for (const ans of this.newAnswers()) {
-            if (ans.description.trim()) {
-              await this.formationState.addAnswer(this.moduleId, questionId, ans.description.trim(), this.newCorrectIndex() === ans.index);
-            }
-          }
-          await this.formationState.loadEvaluation(this.moduleId);
-        }
-      }
+      const correctAnswer = this.newQuestionType() === 'TRUE_FALSE' ? this.tfCorrectAnswer() : undefined;
+      await this.formationState.addQuestion(this.moduleId, this.newStatement(), this.newQuestionType(), correctAnswer);
       this.messageService.add({ severity: 'success', summary: 'Pregunta creada', detail: 'La pregunta se agregó correctamente.' });
       this.questionDialogVisible.set(false);
     } catch {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo crear la pregunta.' });
+    }
+  }
+
+  protected async toggleCorrectAnswer(questionId: string, answerId: string): Promise<void> {
+    try {
+      await this.formationState.setCorrectAnswer(this.moduleId, questionId, answerId);
+    } catch {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cambiar la respuesta correcta.' });
     }
   }
 
@@ -486,7 +522,7 @@ export class EvaluationPage implements OnInit {
     }
   }
 
-  protected openAddAnswerDialog(questionId: string, questionType: QuestionType): void {
+  protected openAddAnswerDialog(questionId: string): void {
     this.answerQuestionId = questionId;
     this.answerDescription.set('');
     this.answerCorrect.set(false);

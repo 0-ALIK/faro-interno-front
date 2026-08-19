@@ -12,7 +12,7 @@ const courseDetails: MunicipalCourseDetailDto[] = [
     courseId: 'crs-001',
     courseTitle: 'Ofimática para el empleo',
     courseCover: { key: 'covers/ofimatica-empleo.jpg', name: 'ofimatica-empleo.jpg', type: 'image/jpeg' },
-    courseStatus: 'PUBLISHED',
+    courseStatus: 'publicado',
     moduleCount: 2,
     lessonCount: 5,
     modules: [
@@ -48,7 +48,7 @@ const courseDetails: MunicipalCourseDetailDto[] = [
     courseId: 'crs-002',
     courseTitle: 'Emprendimiento digital',
     courseCover: null,
-    courseStatus: 'PUBLISHED',
+    courseStatus: 'publicado',
     moduleCount: 2,
     lessonCount: 4,
     modules: [

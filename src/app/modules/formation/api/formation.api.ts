@@ -94,7 +94,7 @@ export class FormationApi {
     return this.http.patch<IdResponseDto>(`${this.baseUrl}/modules/${moduleId}/evaluation`, body);
   }
 
-  addQuestion(moduleId: string, body: { statement: string; type: string }): Observable<IdResponseDto> {
+  addQuestion(moduleId: string, body: { statement: string; type: string; correctAnswer?: string }): Observable<IdResponseDto> {
     return this.http.post<IdResponseDto>(`${this.baseUrl}/modules/${moduleId}/evaluation/questions`, body);
   }
 
@@ -116,6 +116,10 @@ export class FormationApi {
 
   deleteAnswer(moduleId: string, questionId: string, answerId: string): Observable<IdResponseDto> {
     return this.http.delete<IdResponseDto>(`${this.baseUrl}/modules/${moduleId}/evaluation/questions/${questionId}/answers/${answerId}`);
+  }
+
+  setCorrectAnswer(moduleId: string, questionId: string, answerId: string): Observable<IdResponseDto> {
+    return this.http.patch<IdResponseDto>(`${this.baseUrl}/modules/${moduleId}/evaluation/questions/${questionId}/correct-answer`, { answerId });
   }
 }
 

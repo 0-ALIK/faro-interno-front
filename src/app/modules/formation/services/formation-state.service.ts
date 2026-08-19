@@ -6,16 +6,19 @@ import { FormationApi } from '../api/formation.api';
 import { mapEvaluation, mapLessonDetail, mapMunicipalCourse, mapMunicipalCourseList } from '../api/formation.mapper';
 import type { CourseStatus } from '../../catalog/models/catalog.model';
 import type { Evaluation, LessonDetail, Module, MunicipalCourse, MunicipalCourseSummary } from '../models/formation.model';
+import { FileApi } from '../../../core/http/file.api';
 
 @Injectable({ providedIn: 'root' })
 export class FormationStateService {
   private readonly api = inject(FormationApi);
+  private readonly fileApi = inject(FileApi);
   private readonly router = inject(Router);
 
   readonly courses = signal<MunicipalCourseSummary[]>([]);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly search = signal('');
+  readonly coverUrls = signal<Map<string, string>>(new Map());
 
   readonly filteredCourses = computed(() => {
     const query = this.search().trim().toLowerCase();
@@ -40,7 +43,9 @@ export class FormationStateService {
     this.error.set(null);
     try {
       const page = await firstValueFrom(this.api.listCourses({ limit: 100 }));
-      this.courses.set(mapMunicipalCourseList(page).data);
+      const courses = mapMunicipalCourseList(page).data;
+      this.courses.set(courses);
+      await this.resolveCoverUrls(courses.map((c) => c.courseCover?.key).filter((k): k is string => !!k));
     } catch {
       this.error.set('No se pudo cargar la lista de cursos municipales.');
     } finally {
@@ -53,7 +58,11 @@ export class FormationStateService {
     this.detailError.set(null);
     try {
       const dto = await firstValueFrom(this.api.getCourse(id));
-      this.currentCourse.set(mapMunicipalCourse(dto));
+      const course = mapMunicipalCourse(dto);
+      this.currentCourse.set(course);
+      if (course.courseCover?.key) {
+        await this.resolveCoverUrls([course.courseCover.key]);
+      }
     } catch {
       this.detailError.set('No se pudo cargar el curso municipal.');
     } finally {
@@ -255,10 +264,10 @@ export class FormationStateService {
     }
   }
 
-  async addQuestion(moduleId: string, statement: string, type: string): Promise<void> {
+  async addQuestion(moduleId: string, statement: string, type: string, correctAnswer?: string): Promise<void> {
     this.saving.set(true);
     try {
-      await firstValueFrom(this.api.addQuestion(moduleId, { statement, type }));
+      await firstValueFrom(this.api.addQuestion(moduleId, { statement, type, correctAnswer }));
       await this.loadEvaluation(moduleId);
     } finally {
       this.saving.set(false);
@@ -293,6 +302,58 @@ export class FormationStateService {
     } finally {
       this.saving.set(false);
     }
+  }
+
+  async setCorrectAnswer(moduleId: string, questionId: string, answerId: string): Promise<void> {
+    this.saving.set(true);
+    try {
+      await firstValueFrom(this.api.setCorrectAnswer(moduleId, questionId, answerId));
+      this.currentEvaluation.update((eval_) => {
+        if (!eval_) return eval_;
+        return {
+          ...eval_,
+          questions: eval_.questions.map((q) => {
+            if (q.id !== questionId) return q;
+            const isTrueFalse = q.type === 'TRUE_FALSE';
+            return {
+              ...q,
+              answers: q.answers.map((a) => {
+                if (isTrueFalse) {
+                  return { ...a, correct: a.id === answerId };
+                }
+                if (a.id === answerId) {
+                  return { ...a, correct: !a.correct };
+                }
+                return a;
+              })
+            };
+          })
+        };
+      });
+    } finally {
+      this.saving.set(false);
+    }
+  }
+
+  private async resolveCoverUrls(keys: string[]): Promise<void> {
+    const uniqueKeys = [...new Set(keys)].filter(
+      (k) => !this.coverUrls().has(k),
+    );
+    if (uniqueKeys.length === 0) return;
+
+    const signed = await firstValueFrom(this.fileApi.batchSign(uniqueKeys));
+    this.coverUrls.update((prev) => {
+      const next = new Map(prev);
+      for (const file of signed) {
+        next.set(file.key, file.url);
+      }
+      return next;
+    });
+  }
+
+  getCoverUrl(key: string | null | undefined): string | null {
+    if (!key) return null;
+    return this.coverUrls().get(key) ?? null;
   }
 
   goToDetail(id: string): void {

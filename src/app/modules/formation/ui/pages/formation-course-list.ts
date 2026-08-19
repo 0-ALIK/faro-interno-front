@@ -81,9 +81,13 @@ import { COURSE_STATUS_LABELS, labelOf } from '../../../catalog/models/catalog-l
             <tr class="transition-colors hover:bg-surface-50">
               <td>
                 <div class="flex items-center gap-3">
-                  <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-700">
-                    <span class="pi pi-book-open text-sm" aria-hidden="true"></span>
-                  </span>
+                  @if (formationState.getCoverUrl(course.courseCover?.key); as coverUrl) {
+                    <img [src]="coverUrl" [alt]="course.courseTitle" class="h-9 w-9 shrink-0 rounded-xl object-cover" />
+                  } @else {
+                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-700">
+                      <span class="pi pi-book-open text-sm" aria-hidden="true"></span>
+                    </span>
+                  }
                   <a [routerLink]="['/formation/courses', course.id]" class="cursor-pointer font-semibold text-surface-900 hover:text-primary-700">{{ course.courseTitle }}</a>
                 </div>
               </td>
