@@ -15,6 +15,10 @@ export const routes: Routes = [
       {
         path: 'formation',
         loadChildren: () => import('./modules/formation/formation.routes').then((m) => m.formationRoutes)
+      },
+      {
+        path: 'culture',
+        loadChildren: () => import('./modules/culture/culture.routes').then((m) => m.cultureRoutes)
       }
     ]
   },

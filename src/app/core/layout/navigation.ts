@@ -28,11 +28,24 @@ export const NAV_SECTIONS: NavSection[] = [
     ]
   },
   {
+    label: 'Cultura',
+    items: [
+      { label: 'Bibliotecas', icon: 'pi pi-building', routerLink: '/culture/bibliotecas' },
+      { label: 'Eventos', icon: 'pi pi-calendar', routerLink: '/culture/eventos' },
+      { label: 'Mapa', icon: 'pi pi-map-marker', routerLink: '/culture/mapa' },
+      { label: 'Tipo bibliotecas', icon: 'pi pi-list', routerLink: '/culture/tipo-bibliotecas' },
+      { label: 'Tipo eventos', icon: 'pi pi-list', routerLink: '/culture/tipo-eventos' },
+      { label: 'Cat. actividades', icon: 'pi pi-list', routerLink: '/culture/categorias-actividades' },
+      { label: 'Servicios', icon: 'pi pi-wrench', routerLink: '/culture/servicios' },
+      { label: 'Corregimientos', icon: 'pi pi-map', routerLink: '/culture/corregimientos' },
+      { label: 'Actividades', icon: 'pi pi-check-square', routerLink: '/culture/actividades' }
+    ]
+  },
+  {
     label: 'Módulos',
     items: [
       { label: 'Becas', icon: 'pi pi-heart', disabled: true },
-      { label: 'Aprendizaje', icon: 'pi pi-users', disabled: true },
-      { label: 'Cultura', icon: 'pi pi-sun', disabled: true }
+      { label: 'Aprendizaje', icon: 'pi pi-users', disabled: true }
     ]
   }
 ];
