@@ -105,22 +105,22 @@ import { COURSE_MODALITY_LABELS, COURSE_LEVEL_LABELS, COURSE_ORIGIN_LABELS, ENRO
                   <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div class="flex flex-col gap-1.5">
                       <label for="categoryId" class="text-title">Categoría</label>
-                      <p-select id="categoryId" formControlName="categoryId" [options]="catalogState.categoryOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione…" [showClear]="true" class="w-full" />
+                      <p-select id="categoryId" formControlName="categoryId" [options]="catalogState.categoryOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione…" [showClear]="true" class="w-full" (onShow)="onLoadCategories()" />
                     </div>
 
                     <div class="flex flex-col gap-1.5">
                       <label for="providerId" class="text-title">Proveedor</label>
-                      <p-select id="providerId" formControlName="providerId" [options]="catalogState.providerOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione…" [showClear]="true" class="w-full" />
+                      <p-select id="providerId" formControlName="providerId" [options]="catalogState.providerOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione…" [showClear]="true" class="w-full" (onShow)="onLoadProviders()" />
                     </div>
 
                     <div class="flex flex-col gap-1.5 md:col-span-2">
                       <label for="competencyIds" class="text-title">Competencias</label>
-                      <p-multiselect id="competencyIds" formControlName="competencyIds" [options]="catalogState.competencyOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione una o varias…" class="w-full" />
+                      <p-multiselect id="competencyIds" formControlName="competencyIds" [options]="catalogState.competencyOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione una o varias…" class="w-full" (onShow)="onLoadCompetencies()" />
                     </div>
 
                     <div class="flex flex-col gap-1.5 md:col-span-2">
                       <label for="tagIds" class="text-title">Etiquetas</label>
-                      <p-multiselect id="tagIds" formControlName="tagIds" [options]="catalogState.tagOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione una o varias…" class="w-full" />
+                      <p-multiselect id="tagIds" formControlName="tagIds" [options]="catalogState.tagOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione una o varias…" class="w-full" (onShow)="onLoadTags()" />
                     </div>
                   </div>
                 </ng-template>
@@ -197,8 +197,6 @@ export class CourseForm implements OnInit {
   protected readonly enrollmentOptions = Object.entries(ENROLLMENT_MODE_LABELS).map(([value, label]) => ({ label, value }));
 
   async ngOnInit(): Promise<void> {
-    await this.catalogState.loadAll();
-
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEdit.set(true);
@@ -222,6 +220,22 @@ export class CourseForm implements OnInit {
         });
       }
     }
+  }
+
+  protected onLoadCategories(): void {
+    void this.catalogState.loadCategories();
+  }
+
+  protected onLoadProviders(): void {
+    void this.catalogState.loadProviders();
+  }
+
+  protected onLoadCompetencies(): void {
+    void this.catalogState.loadCompetencies();
+  }
+
+  protected onLoadTags(): void {
+    void this.catalogState.loadTags();
   }
 
   protected onCoverSelected(event: Event): void {

@@ -92,6 +92,7 @@ import {
             placeholder="Categoría"
             [showClear]="true"
             (onChange)="onFilterChange()"
+            (onShow)="onLoadCategories()"
             class="w-full md:w-44"
           />
 
@@ -103,6 +104,7 @@ import {
             placeholder="Proveedor"
             [showClear]="true"
             (onChange)="onFilterChange()"
+            (onShow)="onLoadProviders()"
             class="w-full md:w-44"
           />
         </div>
@@ -223,7 +225,6 @@ export class CourseList implements OnInit {
     this.courseState.statusFilter.set(null);
     this.courseState.categoryFilter.set(null);
     this.courseState.providerFilter.set(null);
-    await this.catalogState.loadAll();
     await this.courseState.load();
   }
 
@@ -259,6 +260,14 @@ export class CourseList implements OnInit {
   protected onFilterChange(): void {
     this.courseState.setPage(1);
     void this.courseState.load();
+  }
+
+  protected onLoadCategories(): void {
+    void this.catalogState.loadCategories();
+  }
+
+  protected onLoadProviders(): void {
+    void this.catalogState.loadProviders();
   }
 
   protected onPageChange(event: { page: number; rows: number }): void {

@@ -32,6 +32,11 @@ export class CatalogStateService {
 
   readonly loading = signal(false);
 
+  private categoriesLoaded = false;
+  private providersLoaded = false;
+  private competenciesLoaded = false;
+  private tagsLoaded = false;
+
   readonly categoryPage = signal(1);
   readonly categoryTotal = signal(0);
   readonly categorySearch = signal('');
@@ -62,6 +67,10 @@ export class CatalogStateService {
   );
 
   async loadAll(): Promise<void> {
+    this.categoriesLoaded = false;
+    this.providersLoaded = false;
+    this.competenciesLoaded = false;
+    this.tagsLoaded = false;
     await Promise.all([
       this.loadCategories(),
       this.loadProviders(),
@@ -71,6 +80,7 @@ export class CatalogStateService {
   }
 
   async loadCategories(): Promise<void> {
+    if (this.categoriesLoaded) return;
     this.loading.set(true);
     try {
       const result = await firstValueFrom(this.api.listCategories({
@@ -80,12 +90,14 @@ export class CatalogStateService {
       }));
       this.categories.set(result.data.map((d) => ({ id: d.id, name: d.name })));
       this.categoryTotal.set(result.pagination.total);
+      this.categoriesLoaded = true;
     } finally {
       this.loading.set(false);
     }
   }
 
   async loadProviders(): Promise<void> {
+    if (this.providersLoaded) return;
     this.loading.set(true);
     try {
       const result = await firstValueFrom(this.api.listProviders({
@@ -95,12 +107,14 @@ export class CatalogStateService {
       }));
       this.providers.set(result.data.map((d) => ({ id: d.id, name: d.name, type: PROVIDER_TYPE_FROM_DTO[d.type] })));
       this.providerTotal.set(result.pagination.total);
+      this.providersLoaded = true;
     } finally {
       this.loading.set(false);
     }
   }
 
   async loadCompetencies(): Promise<void> {
+    if (this.competenciesLoaded) return;
     this.loading.set(true);
     try {
       const result = await firstValueFrom(this.api.listCompetencies({
@@ -110,12 +124,14 @@ export class CatalogStateService {
       }));
       this.competencies.set(result.data.map((d) => ({ id: d.id, name: d.name })));
       this.competencyTotal.set(result.pagination.total);
+      this.competenciesLoaded = true;
     } finally {
       this.loading.set(false);
     }
   }
 
   async loadTags(): Promise<void> {
+    if (this.tagsLoaded) return;
     this.loading.set(true);
     try {
       const result = await firstValueFrom(this.api.listTags({
@@ -125,6 +141,7 @@ export class CatalogStateService {
       }));
       this.tags.set(result.data.map((d) => ({ id: d.id, name: d.name })));
       this.tagTotal.set(result.pagination.total);
+      this.tagsLoaded = true;
     } finally {
       this.loading.set(false);
     }
