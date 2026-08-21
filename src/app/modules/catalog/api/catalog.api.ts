@@ -48,7 +48,7 @@ export class CatalogApi {
     return this.http.get<ProviderDetailDto>(`${this.baseUrl}/providers/${id}`);
   }
 
-  createProvider(name: string, type: ProviderDto['type']): Observable<IdResponseDto> {
+  createProvider(name: string, type: string): Observable<IdResponseDto> {
     return this.http.post<IdResponseDto>(`${this.baseUrl}/providers`, { name, type });
   }
 
@@ -56,7 +56,7 @@ export class CatalogApi {
     return this.http.patch<IdResponseDto>(`${this.baseUrl}/providers/${id}`, { name });
   }
 
-  changeProviderType(id: string, type: ProviderDto['type']): Observable<IdResponseDto> {
+  changeProviderType(id: string, type: string): Observable<IdResponseDto> {
     return this.http.patch<IdResponseDto>(`${this.baseUrl}/providers/${id}/type`, { type });
   }
 

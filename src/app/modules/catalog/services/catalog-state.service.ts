@@ -159,7 +159,7 @@ export class CatalogStateService {
   }
 
   async createProvider(name: string, type: Provider['type']): Promise<string> {
-    const res = await firstValueFrom(this.api.createProvider(name, PROVIDER_TYPE_TO_DTO[type]));
+    const res = await firstValueFrom(this.api.createProvider(name, type));
     await this.loadProviders();
     return res.id;
   }
@@ -170,7 +170,7 @@ export class CatalogStateService {
   }
 
   async changeProviderType(id: string, type: Provider['type']): Promise<void> {
-    await firstValueFrom(this.api.changeProviderType(id, PROVIDER_TYPE_TO_DTO[type]));
+    await firstValueFrom(this.api.changeProviderType(id, type));
     await this.loadProviders();
   }
 
