@@ -79,7 +79,7 @@ import { CultureStateService } from '../../services/culture-state.service';
         </div>
         <div class="flex flex-col gap-1.5">
           <label for="actCategory" class="text-caption font-semibold uppercase tracking-wider text-muted-color">Categoría</label>
-          <p-select id="actCategory" [ngModel]="dialogCategoryId()" (ngModelChange)="dialogCategoryId.set($event)" [options]="cultureState.categoryActivityOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione…" [showClear]="true" class="w-full" (onShow)="onLoadCategoryActivities()" />
+          <p-select id="actCategory" [ngModel]="dialogCategoryId()" (ngModelChange)="dialogCategoryId.set($event)" [options]="cultureState.categoryActivityOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione…" [showClear]="true" appendTo="body" class="w-full" (onShow)="onLoadCategoryActivities()" />
         </div>
       </div>
       <ng-template pTemplate="footer">

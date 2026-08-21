@@ -134,7 +134,7 @@ import type { LibraryDetailDto } from '../../api/culture.dto';
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div class="flex flex-col gap-1.5">
                         <label for="libType" class="text-caption font-semibold uppercase tracking-wider text-muted-color">Tipo</label>
-                        <p-select id="libType" [(ngModel)]="editTypeId" [options]="cultureState.typeLibraryOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione…" [showClear]="true" class="w-full" (onShow)="onLoadTypeLibraries()" />
+                        <p-select id="libType" [(ngModel)]="editTypeId" [options]="cultureState.typeLibraryOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione…" [showClear]="true" appendTo="body" class="w-full" (onShow)="onLoadTypeLibraries()" />
                       </div>
                       <div class="flex flex-col gap-1.5">
                         <label for="libEmail" class="text-caption font-semibold uppercase tracking-wider text-muted-color">Email</label>
@@ -176,11 +176,11 @@ import type { LibraryDetailDto } from '../../api/culture.dto';
                       <div class="grid grid-cols-2 gap-4">
                         <div class="flex flex-col gap-1.5">
                           <label for="dirZone" class="text-caption font-semibold uppercase tracking-wider text-muted-color">Zona</label>
-                          <p-select id="dirZone" [(ngModel)]="editDirZone" [options]="zoneOptions" optionLabel="label" optionValue="value" placeholder="Seleccione…" class="w-full" />
+                          <p-select id="dirZone" [(ngModel)]="editDirZone" [options]="zoneOptions" optionLabel="label" optionValue="value" placeholder="Seleccione…" appendTo="body" class="w-full" />
                         </div>
                         <div class="flex flex-col gap-1.5">
                           <label for="dirCorreg" class="text-caption font-semibold uppercase tracking-wider text-muted-color">Corregimiento</label>
-                          <p-select id="dirCorreg" [(ngModel)]="editDirCorregimientoId" [options]="cultureState.corregimientoOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione…" [showClear]="true" class="w-full" (onShow)="onLoadCorregimientos()" />
+                          <p-select id="dirCorreg" [(ngModel)]="editDirCorregimientoId" [options]="cultureState.corregimientoOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione…" [showClear]="true" appendTo="body" class="w-full" (onShow)="onLoadCorregimientos()" />
                         </div>
                       </div>
                       <div class="flex justify-end">
@@ -231,6 +231,7 @@ import type { LibraryDetailDto } from '../../api/culture.dto';
                         optionValue="value"
                         placeholder="Seleccionar actividad…"
                         [showClear]="true"
+                        appendTo="body"
                         class="flex-1"
                         (onShow)="onLoadActivityLibraries()"
                       />
@@ -265,6 +266,7 @@ import type { LibraryDetailDto } from '../../api/culture.dto';
                         optionValue="value"
                         placeholder="Seleccionar servicio…"
                         [showClear]="true"
+                        appendTo="body"
                         class="flex-1"
                         (onShow)="onLoadServiceLibraries()"
                       />
@@ -412,7 +414,7 @@ import type { LibraryDetailDto } from '../../api/culture.dto';
         </div>
         <div class="flex flex-col gap-1.5">
           <label for="evtType" class="text-caption font-semibold uppercase tracking-wider text-muted-color">Tipo</label>
-          <p-select id="evtType" [(ngModel)]="eventFormTypeId" [options]="cultureState.typeEventOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione…" class="w-full" (onShow)="onLoadTypeEvents()" />
+          <p-select id="evtType" [(ngModel)]="eventFormTypeId" [options]="cultureState.typeEventOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione…" appendTo="body" class="w-full" (onShow)="onLoadTypeEvents()" />
         </div>
         <div class="flex flex-col gap-1.5">
           <label for="evtDate" class="text-caption font-semibold uppercase tracking-wider text-muted-color">Fecha</label>

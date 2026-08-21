@@ -42,6 +42,7 @@ import { PROVIDER_TYPE_LABELS } from '../../models/catalog-labels';
             optionLabel="label"
             optionValue="value"
             placeholder="Seleccione…"
+            appendTo="body"
             class="w-full"
           />
         </div>

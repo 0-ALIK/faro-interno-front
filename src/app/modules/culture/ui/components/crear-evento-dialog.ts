@@ -30,11 +30,11 @@ import { CultureStateService } from '../../services/culture-state.service';
         <div class="grid grid-cols-2 gap-4">
           <div class="flex flex-col gap-1.5">
             <label for="evt-type" class="text-title">Tipo *</label>
-            <p-select id="evt-type" [(ngModel)]="typeId" [options]="cultureState.typeEventOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione…" class="w-full" (onShow)="onLoadTypeEvents()" />
+            <p-select id="evt-type" [(ngModel)]="typeId" [options]="cultureState.typeEventOptions()" optionLabel="label" optionValue="value" placeholder="Seleccione…" appendTo="body" class="w-full" (onShow)="onLoadTypeEvents()" />
           </div>
           <div class="flex flex-col gap-1.5">
             <label for="evt-library" class="text-title">Biblioteca *</label>
-            <p-select id="evt-library" [(ngModel)]="libraryId" [options]="libraryOptions" optionLabel="label" optionValue="value" placeholder="Seleccione…" class="w-full" />
+            <p-select id="evt-library" [(ngModel)]="libraryId" [options]="libraryOptions" optionLabel="label" optionValue="value" placeholder="Seleccione…" appendTo="body" class="w-full" />
           </div>
         </div>
 

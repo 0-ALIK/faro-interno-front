@@ -1,6 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
@@ -17,6 +19,7 @@ import { ContentTypeSelector } from '../components/content-type-selector';
 import { ResourceList } from '../components/resource-list';
 import { LESSON_TYPE_LABELS } from '../../models/formation-labels';
 import type { ContentType, LessonType } from '../../models/formation.model';
+import { FileApi } from '../../../../core/http/file.api';
 
 @Component({
   selector: 'app-lesson-editor',
@@ -133,44 +136,64 @@ import type { ContentType, LessonType } from '../../models/formation.model';
                       />
                     }
                     @case ('VIDEO') {
-                      <div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-surface-300 py-12 text-center">
-                        <span class="pi pi-video text-4xl text-surface-300 mb-3" aria-hidden="true"></span>
-                        <p class="text-body text-muted-color mb-4">Subí un archivo de video</p>
-                        <input
-                          #videoInput
-                          type="file"
-                          accept="video/*"
-                          class="hidden"
-                          (change)="onFileSelected($event, 'VIDEO')"
-                        />
-                        <p-button
-                          label="Seleccionar video"
-                          icon="pi pi-upload"
-                          severity="secondary"
-                          [outlined]="true"
-                          (onClick)="videoInput.click()"
-                        />
-                      </div>
+                      @if (videoUrl()) {
+                        <div class="flex flex-col gap-3">
+                          <video [src]="videoUrl()" controls muted preload="metadata" class="w-full rounded-xl bg-black"></video>
+                          <div class="flex justify-end">
+                            <input #replaceVideo type="file" accept="video/*" class="hidden" (change)="onFileSelected($event, 'VIDEO')" />
+                            <p-button label="Reemplazar video" icon="pi pi-refresh" severity="secondary" [outlined]="true" (onClick)="replaceVideo.click()" />
+                          </div>
+                        </div>
+                      } @else {
+                        <div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-surface-300 py-12 text-center">
+                          <span class="pi pi-video text-4xl text-surface-300 mb-3" aria-hidden="true"></span>
+                          <p class="text-body text-muted-color mb-4">Subí un archivo de video</p>
+                          <input
+                            #videoInput
+                            type="file"
+                            accept="video/*"
+                            class="hidden"
+                            (change)="onFileSelected($event, 'VIDEO')"
+                          />
+                          <p-button
+                            label="Seleccionar video"
+                            icon="pi pi-upload"
+                            severity="secondary"
+                            [outlined]="true"
+                            (onClick)="videoInput.click()"
+                          />
+                        </div>
+                      }
                     }
                     @case ('PDF') {
-                      <div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-surface-300 py-12 text-center">
-                        <span class="pi pi-file-pdf text-4xl text-surface-300 mb-3" aria-hidden="true"></span>
-                        <p class="text-body text-muted-color mb-4">Subí un archivo PDF</p>
-                        <input
-                          #pdfInput
-                          type="file"
-                          accept=".pdf"
-                          class="hidden"
-                          (change)="onFileSelected($event, 'PDF')"
-                        />
-                        <p-button
-                          label="Seleccionar PDF"
-                          icon="pi pi-upload"
-                          severity="secondary"
-                          [outlined]="true"
-                          (onClick)="pdfInput.click()"
-                        />
-                      </div>
+                      @if (pdfUrl()) {
+                        <div class="flex flex-col gap-3">
+                          <iframe [src]="pdfUrl()" class="w-full h-96 rounded-xl border border-surface-200"></iframe>
+                          <div class="flex justify-end">
+                            <input #replacePdf type="file" accept=".pdf" class="hidden" (change)="onFileSelected($event, 'PDF')" />
+                            <p-button label="Reemplazar PDF" icon="pi pi-refresh" severity="secondary" [outlined]="true" (onClick)="replacePdf.click()" />
+                          </div>
+                        </div>
+                      } @else {
+                        <div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-surface-300 py-12 text-center">
+                          <span class="pi pi-file-pdf text-4xl text-surface-300 mb-3" aria-hidden="true"></span>
+                          <p class="text-body text-muted-color mb-4">Subí un archivo PDF</p>
+                          <input
+                            #pdfInput
+                            type="file"
+                            accept=".pdf"
+                            class="hidden"
+                            (change)="onFileSelected($event, 'PDF')"
+                          />
+                          <p-button
+                            label="Seleccionar PDF"
+                            icon="pi pi-upload"
+                            severity="secondary"
+                            [outlined]="true"
+                            (onClick)="pdfInput.click()"
+                          />
+                        </div>
+                      }
                     }
                   }
                 </div>
@@ -206,12 +229,25 @@ import type { ContentType, LessonType } from '../../models/formation.model';
     </div>
   `
 })
-export class LessonEditor implements OnInit {
+export class LessonEditor implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   protected readonly formationState = inject(FormationStateService);
   private readonly messageService = inject(MessageService);
+  private readonly fileApi = inject(FileApi);
+  private readonly sanitizer = inject(DomSanitizer);
+
+  private formInitialized = false;
+  private readonly effectRef = effect(() => {
+    const lesson = this.formationState.currentLesson();
+    if (lesson && !this.formInitialized) {
+      this.formInitialized = true;
+      this.initFormFromLesson();
+    }
+  });
 
   protected readonly contentType = signal<ContentType | null>(null);
+  protected readonly videoUrl = signal<SafeResourceUrl | null>(null);
+  protected readonly pdfUrl = signal<SafeResourceUrl | null>(null);
   protected articleContent = '';
   protected lessonTitle = '';
   protected lessonDescription = '';
@@ -237,6 +273,32 @@ export class LessonEditor implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       void this.formationState.loadLesson(id);
+    }
+  }
+
+  private async initFormFromLesson(): Promise<void> {
+    const lesson = this.formationState.currentLesson();
+    if (!lesson) return;
+    this.lessonTitle = lesson.title;
+    this.lessonDescription = lesson.description ?? '';
+    this.lessonTypeValue = lesson.type;
+    if (lesson.mainContent?.type === 'ARTICLE' && lesson.mainContent.article) {
+      this.contentType.set('ARTICLE');
+      this.articleContent = lesson.mainContent.article.content;
+    } else if (lesson.mainContent?.type === 'VIDEO' && lesson.mainContent.video) {
+      this.contentType.set('VIDEO');
+      const urls = await firstValueFrom(this.fileApi.batchSign([lesson.mainContent.video.key]));
+      if (urls.length > 0) {
+        this.videoUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(urls[0].url));
+      }
+    } else if (lesson.mainContent?.type === 'PDF' && lesson.mainContent.documentPdf) {
+      this.contentType.set('PDF');
+      const urls = await firstValueFrom(this.fileApi.batchSign([lesson.mainContent.documentPdf.key]));
+      if (urls.length > 0) {
+        this.pdfUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(urls[0].url));
+      }
+    } else if (lesson.mainContent?.type) {
+      this.contentType.set(lesson.mainContent.type);
     }
   }
 
@@ -277,8 +339,14 @@ export class LessonEditor implements OnInit {
     if (!lesson) return;
 
     const formData = new FormData();
-    formData.append('file', file);
     formData.append('type', type);
+
+    if (type === 'ARTICLE') {
+      formData.append('articleContent', this.articleContent || '');
+    } else {
+      const fieldName = type === 'VIDEO' ? 'video' : 'documentPdf';
+      formData.append(fieldName, file);
+    }
 
     try {
       await this.formationState.assignMainContent(lesson.id, formData);
@@ -295,22 +363,29 @@ export class LessonEditor implements OnInit {
     if (!lesson) return;
 
     const articleId = lesson.mainContent?.article?.id;
-    if (articleId) {
-      try {
+    const formData = new FormData();
+    formData.append('type', 'ARTICLE');
+    formData.append('articleContent', this.articleContent || '');
+
+    try {
+      if (articleId) {
         await this.formationState.updateArticle(lesson.id, articleId, this.articleContent);
-        this.messageService.add({ severity: 'success', summary: 'Artículo guardado', detail: 'El artículo se guardó correctamente.' });
-      } catch {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar el artículo.' });
+      } else {
+        await this.formationState.assignMainContent(lesson.id, formData);
       }
+      this.messageService.add({ severity: 'success', summary: 'Artículo guardado', detail: 'El artículo se guardó correctamente.' });
+    } catch {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar el artículo.' });
     }
   }
 
-  protected async onFileSelectedForResource(file: File): Promise<void> {
+  protected async onFileSelectedForResource(data: { name: string; file: File }): Promise<void> {
     const lesson = this.formationState.currentLesson();
     if (!lesson) return;
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', data.file);
+    formData.append('name', data.name);
 
     try {
       await this.formationState.addResource(lesson.id, formData);
@@ -330,5 +405,9 @@ export class LessonEditor implements OnInit {
     } catch {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar el recurso.' });
     }
+  }
+
+  ngOnDestroy(): void {
+    this.effectRef.destroy();
   }
 }

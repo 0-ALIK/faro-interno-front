@@ -120,7 +120,6 @@ export class ProviderList implements OnInit {
   protected readonly dialogInitialName = signal('');
   protected readonly dialogInitialType = signal<ProviderType | null>(null);
   private editingId: string | null = null;
-  private isRenameOnly = false;
 
   private searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -150,7 +149,6 @@ export class ProviderList implements OnInit {
 
   protected openCreate(): void {
     this.editingId = null;
-    this.isRenameOnly = false;
     this.dialogHeader.set('Crear proveedor');
     this.dialogInitialName.set('');
     this.dialogInitialType.set(null);
@@ -159,8 +157,7 @@ export class ProviderList implements OnInit {
 
   protected openRename(prv: Provider): void {
     this.editingId = prv.id;
-    this.isRenameOnly = true;
-    this.dialogHeader.set('Renombrar proveedor');
+    this.dialogHeader.set('Editar proveedor');
     this.dialogInitialName.set(prv.name);
     this.dialogInitialType.set(prv.type);
     this.dialogVisible.set(true);
@@ -168,8 +165,7 @@ export class ProviderList implements OnInit {
 
   protected openChangeType(prv: Provider): void {
     this.editingId = prv.id;
-    this.isRenameOnly = false;
-    this.dialogHeader.set('Cambiar tipo de proveedor');
+    this.dialogHeader.set('Editar proveedor');
     this.dialogInitialName.set(prv.name);
     this.dialogInitialType.set(prv.type);
     this.dialogVisible.set(true);
@@ -182,12 +178,10 @@ export class ProviderList implements OnInit {
   protected async onSave(data: { name: string; type: ProviderType }): Promise<void> {
     this.saving.set(true);
     try {
-      if (this.isRenameOnly && this.editingId) {
+      if (this.editingId) {
         await this.catalogState.renameProvider(this.editingId, data.name);
-        this.messageService.add({ severity: 'success', summary: 'Actualizado', detail: 'Proveedor renombrado.' });
-      } else if (this.editingId) {
         await this.catalogState.changeProviderType(this.editingId, data.type);
-        this.messageService.add({ severity: 'success', summary: 'Actualizado', detail: 'Tipo de proveedor cambiado.' });
+        this.messageService.add({ severity: 'success', summary: 'Actualizado', detail: 'Proveedor actualizado.' });
       } else {
         await this.catalogState.createProvider(data.name, data.type);
         this.messageService.add({ severity: 'success', summary: 'Creado', detail: 'Nuevo proveedor agregado.' });

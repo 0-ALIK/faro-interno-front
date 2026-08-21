@@ -1,13 +1,20 @@
-import { Component, ElementRef, input, output, ViewChild } from '@angular/core';
+import { Component, ElementRef, input, output, signal, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
+import { InputTextModule } from 'primeng/inputtext';
+import { DialogModule } from 'primeng/dialog';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 import type { Resource } from '../../models/formation.model';
 
 @Component({
   selector: 'app-resource-list',
-  imports: [ButtonModule, TableModule],
+  imports: [FormsModule, ButtonModule, TableModule, InputTextModule, DialogModule, ToastModule],
+  providers: [MessageService],
   template: `
+    <p-toast />
     <div class="flex flex-col gap-3">
       @if (resources().length === 0) {
         <p class="text-caption text-muted-color">Sin recursos adjuntos</p>
@@ -55,23 +62,49 @@ import type { Resource } from '../../models/formation.model';
         (change)="onFileSelected($event)"
       />
     </div>
+
+    <p-dialog header="Nombre del recurso" [modal]="true" [visible]="nameDialogVisible()" (onHide)="nameDialogVisible.set(false)" [style]="{ width: '28rem' }">
+      <div class="flex flex-col gap-1.5">
+        <label for="resourceName" class="text-caption font-semibold uppercase tracking-wider text-muted-color">Nombre</label>
+        <input pInputText id="resourceName" [(ngModel)]="resourceName" class="w-full" placeholder="Nombre del recurso" autofocus />
+      </div>
+      <ng-template pTemplate="footer">
+        <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="nameDialogVisible.set(false)" />
+        <p-button label="Agregar" icon="pi pi-check" [loading]="saving()" [disabled]="!resourceName.trim()" (onClick)="confirmAddResource()" />
+      </ng-template>
+    </p-dialog>
   `
 })
 export class ResourceList {
   readonly resources = input.required<Resource[]>();
   readonly saving = input(false);
 
-  readonly add = output<File>();
+  readonly add = output<{ name: string; file: File }>();
   readonly delete = output<string>();
 
   @ViewChild('fileInput') private fileInput!: ElementRef<HTMLInputElement>;
+
+  protected readonly nameDialogVisible = signal(false);
+  protected resourceName = '';
+  private pendingFile: File | null = null;
 
   protected onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (file) {
-      this.add.emit(file);
+      this.pendingFile = file;
+      this.resourceName = file.name;
+      this.nameDialogVisible.set(true);
       input.value = '';
+    }
+  }
+
+  protected confirmAddResource(): void {
+    if (this.pendingFile && this.resourceName.trim()) {
+      this.add.emit({ name: this.resourceName.trim(), file: this.pendingFile });
+      this.nameDialogVisible.set(false);
+      this.pendingFile = null;
+      this.resourceName = '';
     }
   }
 }

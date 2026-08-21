@@ -54,6 +54,7 @@ export class FormationStateService {
   }
 
   async loadCourse(id: string): Promise<void> {
+    this.currentCourse.set(null);
     this.detailLoading.set(true);
     this.detailError.set(null);
     try {
@@ -167,6 +168,7 @@ export class FormationStateService {
   }
 
   async loadLesson(id: string): Promise<void> {
+    this.currentLesson.set(null);
     this.lessonLoading.set(true);
     this.lessonError.set(null);
     try {
@@ -230,13 +232,14 @@ export class FormationStateService {
   }
 
   async loadEvaluation(moduleId: string): Promise<void> {
+    this.currentEvaluation.set(null);
     this.evaluationLoading.set(true);
     this.evaluationError.set(null);
     try {
       const dto = await firstValueFrom(this.api.getEvaluation(moduleId));
       this.currentEvaluation.set(mapEvaluation(dto));
     } catch {
-      this.currentEvaluation.set(null);
+      this.evaluationError.set('No se pudo cargar la evaluación.');
     } finally {
       this.evaluationLoading.set(false);
     }

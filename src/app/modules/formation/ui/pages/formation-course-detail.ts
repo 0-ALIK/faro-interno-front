@@ -210,6 +210,7 @@ import type { LessonType, Module } from '../../models/formation.model';
                 optionLabel="label"
                 optionValue="value"
                 placeholder="Seleccione..."
+                appendTo="body"
                 class="w-full"
               />
             </div>

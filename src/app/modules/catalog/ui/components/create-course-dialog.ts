@@ -29,22 +29,22 @@ import { COURSE_LEVEL_LABELS, COURSE_MODALITY_LABELS, COURSE_ORIGIN_LABELS, ENRO
         <div class="grid grid-cols-2 gap-4">
           <div class="flex flex-col gap-1.5">
             <label for="crs-modality" class="text-title">Modalidad *</label>
-            <p-select id="crs-modality" [(ngModel)]="modality" [options]="modalityOptions" optionLabel="label" optionValue="value" placeholder="Seleccione…" class="w-full" />
+            <p-select id="crs-modality" [(ngModel)]="modality" [options]="modalityOptions" optionLabel="label" optionValue="value" placeholder="Seleccione…" appendTo="body" class="w-full" />
           </div>
 
           <div class="flex flex-col gap-1.5">
             <label for="crs-level" class="text-title">Nivel *</label>
-            <p-select id="crs-level" [(ngModel)]="level" [options]="levelOptions" optionLabel="label" optionValue="value" placeholder="Seleccione…" class="w-full" />
+            <p-select id="crs-level" [(ngModel)]="level" [options]="levelOptions" optionLabel="label" optionValue="value" placeholder="Seleccione…" appendTo="body" class="w-full" />
           </div>
 
           <div class="flex flex-col gap-1.5">
             <label for="crs-origin" class="text-title">Origen *</label>
-            <p-select id="crs-origin" [(ngModel)]="origin" [options]="originOptions" optionLabel="label" optionValue="value" placeholder="Seleccione…" class="w-full" />
+            <p-select id="crs-origin" [(ngModel)]="origin" [options]="originOptions" optionLabel="label" optionValue="value" placeholder="Seleccione…" appendTo="body" class="w-full" />
           </div>
 
           <div class="flex flex-col gap-1.5">
             <label for="crs-enrollment" class="text-title">Inscripción</label>
-            <p-select id="crs-enrollment" [(ngModel)]="enrollmentMode" [options]="enrollmentOptions" optionLabel="label" optionValue="value" placeholder="Seleccione…" class="w-full" />
+            <p-select id="crs-enrollment" [(ngModel)]="enrollmentMode" [options]="enrollmentOptions" optionLabel="label" optionValue="value" placeholder="Seleccione…" appendTo="body" class="w-full" />
           </div>
         </div>
 

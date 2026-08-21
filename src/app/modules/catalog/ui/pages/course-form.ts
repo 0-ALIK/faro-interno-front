@@ -201,6 +201,12 @@ export class CourseForm implements OnInit {
     if (id) {
       this.isEdit.set(true);
       await this.courseState.loadCourse(id);
+      await Promise.all([
+        this.catalogState.loadCategories(),
+        this.catalogState.loadProviders(),
+        this.catalogState.loadCompetencies(),
+        this.catalogState.loadTags()
+      ]);
       const course = this.courseState.currentCourse();
       if (course) {
         this.originalCompetencyIds = course.competencies.map((c) => c.id);

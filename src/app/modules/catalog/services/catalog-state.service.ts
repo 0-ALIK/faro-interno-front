@@ -149,50 +149,70 @@ export class CatalogStateService {
 
   async createCategory(name: string): Promise<string> {
     const res = await firstValueFrom(this.api.createCategory(name));
-    await this.loadCategories();
+    if (this.categories().length < 10) {
+      this.categories.update((list) => [...list, { id: res.id, name }]);
+      this.categoryTotal.update((t) => t + 1);
+    } else {
+      this.categoryTotal.update((t) => t + 1);
+    }
     return res.id;
   }
 
   async renameCategory(id: string, name: string): Promise<void> {
     await firstValueFrom(this.api.renameCategory(id, name));
-    await this.loadCategories();
+    this.categories.update((list) => list.map((c) => (c.id === id ? { ...c, name } : c)));
   }
 
   async createProvider(name: string, type: Provider['type']): Promise<string> {
     const res = await firstValueFrom(this.api.createProvider(name, type));
-    await this.loadProviders();
+    if (this.providers().length < 10) {
+      this.providers.update((list) => [...list, { id: res.id, name, type }]);
+      this.providerTotal.update((t) => t + 1);
+    } else {
+      this.providerTotal.update((t) => t + 1);
+    }
     return res.id;
   }
 
   async renameProvider(id: string, name: string): Promise<void> {
     await firstValueFrom(this.api.renameProvider(id, name));
-    await this.loadProviders();
+    this.providers.update((list) => list.map((p) => (p.id === id ? { ...p, name } : p)));
   }
 
   async changeProviderType(id: string, type: Provider['type']): Promise<void> {
     await firstValueFrom(this.api.changeProviderType(id, type));
-    await this.loadProviders();
+    this.providers.update((list) => list.map((p) => (p.id === id ? { ...p, type } : p)));
   }
 
   async createCompetency(name: string): Promise<string> {
     const res = await firstValueFrom(this.api.createCompetency(name));
-    await this.loadCompetencies();
+    if (this.competencies().length < 10) {
+      this.competencies.update((list) => [...list, { id: res.id, name }]);
+      this.competencyTotal.update((t) => t + 1);
+    } else {
+      this.competencyTotal.update((t) => t + 1);
+    }
     return res.id;
   }
 
   async renameCompetency(id: string, name: string): Promise<void> {
     await firstValueFrom(this.api.renameCompetency(id, name));
-    await this.loadCompetencies();
+    this.competencies.update((list) => list.map((c) => (c.id === id ? { ...c, name } : c)));
   }
 
   async createTag(name: string): Promise<string> {
     const res = await firstValueFrom(this.api.createTag(name));
-    await this.loadTags();
+    if (this.tags().length < 10) {
+      this.tags.update((list) => [...list, { id: res.id, name }]);
+      this.tagTotal.update((t) => t + 1);
+    } else {
+      this.tagTotal.update((t) => t + 1);
+    }
     return res.id;
   }
 
   async renameTag(id: string, name: string): Promise<void> {
     await firstValueFrom(this.api.renameTag(id, name));
-    await this.loadTags();
+    this.tags.update((list) => list.map((t) => (t.id === id ? { ...t, name } : t)));
   }
 }
